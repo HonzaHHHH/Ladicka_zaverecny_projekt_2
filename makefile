@@ -3,17 +3,20 @@ VYSTUP = ladicka
 SESTAVENI = build
 ZDROJAKY = src
 HLAVICKY = include
+
 KODY = $(wildcard $(ZDROJAKY)/*.c)
 OBJEKTY = $(patsubst $(ZDROJAKY)/%.c, $(SESTAVENI)/%.o, $(KODY))
 
+all: $(SESTAVENI)/$(VYSTUP)
 
-all: $(VYSTUP)
+$(SESTAVENI)/$(VYSTUP) : $(OBJEKTY)
+	$(KOMPILATOR) $(OBJEKTY) -I$(HLAVICKY) -o $@
 
-VYSTUP : $(OBJEKTY)
-	$(KOMPILATOR) $(OBJEKTY) -I$(HLAVICKY) -o $(SESTAVENI)/$
+$(SESTAVENI)/%.o : $(ZDROJAKY)/%.c | $(SESTAVENI)
+	$(KOMPILATOR) -c $< -I$(HLAVICKY) -o $@
 
-$(SESTAVENI)/%.o : $(ZDROJAKY)/%.c
-	$(KOMPILATOR) $(ZDROJAKY)/%.c -o $@
+$(SESTAVENI):
+	mkdir -p $(SESTAVENI)
 
 clean:
-rm -r ./$(SESTAVENI)/*
+	rm -rf $(SESTAVENI)/* $(SESTAVENI)/$(VYSTUP)
