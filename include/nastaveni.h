@@ -34,6 +34,9 @@
 #define EXIT_VTERMSETT 30
 
 extern short nastaveni;
+extern int vzorkovaciFrekvence;
+extern int vzorkuNaBuffer;
+extern double cisloPi;
 
 void praceSParametrem(char *parametry);
 

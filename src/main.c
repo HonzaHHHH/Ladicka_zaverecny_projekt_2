@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <nastaveni.h>
 #include <terminalSettings.h>
+#include <prehravaniTonu.h>
 
 int main(int pocetParametru, char **argumenty);
 void praceSParametrem(char *parametry);
@@ -60,7 +61,7 @@ int main(int pocetArgumentu, char **argumenty)
             switch (cisloVNabidce)
             {
             case 0:
-                // kod pro poslech
+                prehraniTonu();
                 break;
             case 1:
                 // kod pro ladeni pres mikrofon

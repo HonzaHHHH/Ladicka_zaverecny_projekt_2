@@ -10,7 +10,7 @@ OBJEKTY = $(patsubst $(ZDROJAKY)/%.c, $(SESTAVENI)/%.o, $(KODY))
 all: $(SESTAVENI)/$(VYSTUP)
 
 $(SESTAVENI)/$(VYSTUP) : $(OBJEKTY)
-	$(KOMPILATOR) $(OBJEKTY) -I$(HLAVICKY) -o $@
+	$(KOMPILATOR) $(OBJEKTY) -lm -lportaudio -I$(HLAVICKY) -o $@
 
 $(SESTAVENI)/%.o : $(ZDROJAKY)/%.c | $(SESTAVENI)
 	$(KOMPILATOR) -c $< -I$(HLAVICKY) -o $@
