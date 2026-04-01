@@ -20,6 +20,7 @@
 int main(int pocetParametru, char **argumenty);
 void praceSParametrem(char **parametry);
 void vypsatNabidku(int aktivniPolozka);
+void odejit(void);
 
 int main(int pocetArgumentu, char **argumenty)
 {
@@ -54,10 +55,16 @@ int main(int pocetArgumentu, char **argumenty)
             switch (cisloVNabidce)
             {
             case 0:
-                /* code */
+                // kod pro poslech
                 break;
-            
-            default:
+            case 1:
+                // kod pro ladeni pres mikrofon
+                break;
+            case 2:
+                // kod pro nastaveni
+                break;
+            case 3:
+                // kod pro odchod
                 break;
             }
         }
