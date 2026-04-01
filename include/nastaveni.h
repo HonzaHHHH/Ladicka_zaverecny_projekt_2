@@ -33,7 +33,7 @@
 #define EXIT_VPLAY 20
 #define EXIT_VTERMSETT 30
 
-short nastaveni = 0;
+extern short nastaveni;
 
 void praceSParametrem(char *parametry);
 

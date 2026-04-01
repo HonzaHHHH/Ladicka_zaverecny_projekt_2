@@ -114,7 +114,7 @@ void odejit(void)
         break;
     case 'A':
         clearScreen();
-        printf("Program ukončen (Hejzle!)\n");
+        printf("Program ukončen (Hajzle!)\n");
         exit(EXIT_NORMALNI);
     case 'n':
         clearScreen();
