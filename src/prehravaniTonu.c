@@ -1,0 +1,2 @@
+void prehraniTonu(void)
+{}

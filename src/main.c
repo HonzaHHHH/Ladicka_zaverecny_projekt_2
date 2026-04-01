@@ -15,10 +15,11 @@
 #include <stdlib.h>
 #include <portaudio.h>
 #include <unistd.h>
-#include "terminalSettings.h"
+#include <nastaveni.h>
+#include <terminalSettings.h>
 
 int main(int pocetParametru, char **argumenty);
-void praceSParametrem(char **parametry);
+void praceSParametrem(char *parametry);
 void vypsatNabidku(int aktivniPolozka);
 void odejit(void);
 
@@ -27,18 +28,21 @@ int main(int pocetArgumentu, char **argumenty)
 
     for (int i = 1; i < pocetArgumentu; i++)
     {
-        praceSParametrem(&argumenty[i]);
+        praceSParametrem(argumenty[i]);
     }
-    short system = 0;
+    if (nastaveni & (1 << NASTAVENI_IGNSYS))
+    {
+        short OpSystem = 0;
 #ifdef __unix__
-    system |= (1 << 0);
+        OpSystem |= (1 << 0);
 #endif
 #ifdef __linux__
-    system |= (1 << 1);
+        OpSystem |= (1 << 1);
 #endif
-    if (system == 0)
-    {
-        printf("Je mi líto, ale tento systém není podporován\n");
+        if (system == 0)
+        {
+            printf("Je mi líto, ale tento systém není podporován\n");
+        }
     }
     setupTerminalFunctions();
     char volici = 0;
@@ -47,9 +51,10 @@ int main(int pocetArgumentu, char **argumenty)
     {
         vypsatNabidku(cisloVNabidce);
         volici = getCharNow();
-        if ((volici == 's' || volici == 'S') && cisloVNabidce < 3) cisloVNabidce++;
-        if ((volici == 'w' || volici == 'W') && cisloVNabidce > 0) cisloVNabidce--;
-        volici = 0;
+        if ((volici == 's' || volici == 'S') && cisloVNabidce < 3)
+            cisloVNabidce++;
+        if ((volici == 'w' || volici == 'W') && cisloVNabidce > 0)
+            cisloVNabidce--;
         if (volici == '\n')
         {
             switch (cisloVNabidce)
@@ -64,14 +69,14 @@ int main(int pocetArgumentu, char **argumenty)
                 // kod pro nastaveni
                 break;
             case 3:
-                // kod pro odchod
+                odejit();
                 break;
             }
         }
+        volici = 0;
     }
 }
 
-void praceSParametrem(char **parametry) {}
 void vypsatNabidku(int aktivniPolozka)
 {
     clearScreen();
@@ -90,6 +95,37 @@ void vypsatNabidku(int aktivniPolozka)
                    "\x1b[0m",
                    text[i]);
         }
-        else printf("%s", text[i]);
+        else
+            printf("%s", text[i]);
+    }
+}
+
+void odejit(void)
+{
+    clearScreen();
+    printf("Opravdu chcete odejít? (Budu smutný :-( ) [A/N]");
+    char volba = getCharNow();
+    switch (volba)
+    {
+    case 'a':
+        clearScreen();
+        printf("Program ukončen (Hajzle!)\n");
+        exit(EXIT_NORMALNI);
+        break;
+    case 'A':
+        clearScreen();
+        printf("Program ukončen (Hejzle!)\n");
+        exit(EXIT_NORMALNI);
+    case 'n':
+        clearScreen();
+        return;
+    case 'N':
+        clearScreen();
+        return;
+    default:
+        printf("Takovou klávesnici já neznám\n");
+        sleep(1000);
+        return;
+        break;
     }
 }
