@@ -4,6 +4,7 @@
 // Nastaveni maker pro proměnnou nastavení
 
 #define NASTAVENI_IGNSYS 1
+#define NASTAVENI_DIALOGPLUS 2
 
 /*
     Kvůli zlepšení debugování

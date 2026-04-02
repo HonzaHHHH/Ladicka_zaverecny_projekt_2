@@ -20,7 +20,6 @@
 #include <prehravaniTonu.h>
 
 int main(int pocetParametru, char **argumenty);
-void praceSParametrem(char *parametry);
 void vypsatNabidku(int aktivniPolozka);
 void odejit(void);
 
@@ -110,12 +109,14 @@ void odejit(void)
     {
     case 'a':
         clearScreen();
-        printf("Program ukončen (Hajzle!)\n");
+        printf("Program ukončen\n");
+        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("(Hajzle!)\n");
         exit(EXIT_NORMALNI);
         break;
     case 'A':
         clearScreen();
-        printf("Program ukončen (Hajzle!)\n");
+        printf("Program ukončen\n");
+        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("(Hajzle!)\n");
         exit(EXIT_NORMALNI);
     case 'n':
         clearScreen();
