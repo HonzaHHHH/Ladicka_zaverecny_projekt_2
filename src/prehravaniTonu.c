@@ -60,13 +60,24 @@ void prehraniTonu(void)
                 cisloVNabidce--;
             break;
         case '\n':
+        clearScreen();
+            for (int i = 0; i < gitara.pocetTonu; i++)
+            {
+                if (cisloVNabidce == i)
+                    printf("\x1b[32m"
+                           "\n### %s ### Nyní hraje ###"
+                           "\x1b[0m",
+                           gitara.nazvyTonu[i]);
+                else
+                    printf("\n%s", gitara.nazvyTonu[i]);
+            }
             hratTon(poleStreamu[cisloVNabidce]);
             break;
         case 'q':
         case 'Q':
             konecFunkce = 0;
 
-        break;
+            break;
         }
     }
     Pa_Terminate();

@@ -18,6 +18,7 @@
 #include <nastaveni.h>
 #include <terminalSettings.h>
 #include <prehravaniTonu.h>
+#include <ladeniTonu.h>
 
 int main(int pocetParametru, char **argumenty);
 void vypsatNabidku(int aktivniPolozka);
@@ -63,7 +64,7 @@ int main(int pocetArgumentu, char **argumenty)
                 prehraniTonu();
                 break;
             case 1:
-                // kod pro ladeni pres mikrofon
+                ladeniTonu();
                 break;
             case 2:
                 // kod pro nastaveni

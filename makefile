@@ -20,3 +20,5 @@ $(SESTAVENI):
 
 clean:
 	rm -rf $(SESTAVENI)/* $(SESTAVENI)/$(VYSTUP)
+
+rebuild: clean all
