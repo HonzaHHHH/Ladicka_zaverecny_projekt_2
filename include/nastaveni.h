@@ -33,12 +33,24 @@
 #define EXIT_VNAST 10
 #define EXIT_VPLAY 20
 #define EXIT_VTERMSETT 30
+#define EXIT_VLADENI 40
+
+#include <nacitaniStruktur.h>
+#include <portaudio.h>
 
 extern short nastaveni;
 extern int vzorkovaciFrekvence;
 extern int vzorkuNaBuffer;
 extern double cisloPi;
 
+struct dataProStream
+{
+    int frekvence;
+    double faze;
+};
+
 void praceSParametrem(char *parametry);
+
+PaStream ** nastaveniPortAudioStreamu(struct hudebniNastroj);
 
 #endif
