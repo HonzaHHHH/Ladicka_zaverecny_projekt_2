@@ -5,6 +5,8 @@
 
 #define NASTAVENI_IGNSYS 1
 #define NASTAVENI_DIALOGPLUS 2
+#define NASTAVENI_CHCEPOUZEHELP 3
+#define NASTAVENI_HELPASTART 4
 
 /*
     Kvůli zlepšení debugování
@@ -52,5 +54,7 @@ struct dataProStream
 void praceSParametrem(char *parametry);
 
 PaStream ** nastaveniPortAudioStreamu(struct hudebniNastroj);
+
+void nastaveniNastaveni();
 
 #endif

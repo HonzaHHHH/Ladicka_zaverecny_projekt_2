@@ -13,7 +13,7 @@ struct dataProStream *poleDatProStream;
 
 void hratTon(PaStream *ukazatelNaStream);
 PaStream **nastaveniPortAudioStreamu(struct hudebniNastroj nastroj);
-int pamujcallback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
+int PaCallbackPrehravani(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
 
 void prehraniTonu(void)
 {

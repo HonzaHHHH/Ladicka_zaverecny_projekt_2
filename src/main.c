@@ -11,6 +11,8 @@
     LADIČKA
     V konzoli
 */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <portaudio.h>
@@ -30,6 +32,16 @@ int main(int pocetArgumentu, char **argumenty)
     for (int i = 1; i < pocetArgumentu; i++)
     {
         praceSParametrem(argumenty[i]);
+    }
+    if (nastaveni & ((1 << NASTAVENI_CHCEPOUZEHELP) | (1 << NASTAVENI_HELPASTART)))
+    {
+        printf("Ladička\n\nUmožňuje ladění různých hudebních nástrojů v konzoli\n\nAutor: Jan Huml\n2026\n\n\nPoužití:\n\nladicka [PARAMETRY]\n\nSeznam parametrů:\n--help   Zobrazí nápovědu\n--has     Zobrazí nápovědu a poté spustí program\n --dipp    Dialogy++ - nechte se překvapit ;-)\n--ignsys    Ignoruje systém (použiití na vlastní riziko)\nProgram se ovládá klávesami WASD, Q pro krok zpátky a enterem\nPro pokračnování stiskněte jakoukkoliv klávesu\n\n");
+        setupTerminalFunctions();
+        getCharNow();
+        if (nastaveni & (1 << NASTAVENI_CHCEPOUZEHELP))
+        {
+            exit(0);
+        }
     }
     if (nastaveni & (1 << NASTAVENI_IGNSYS))
     {
@@ -67,7 +79,7 @@ int main(int pocetArgumentu, char **argumenty)
                 ladeniTonu();
                 break;
             case 2:
-                // kod pro nastaveni
+                nastaveniNastaveni();
                 break;
             case 3:
                 odejit();
