@@ -7,6 +7,10 @@
 
 
 void ladeniTonu();
+void laditTon(PaStream *ukazatelNaStream);
+
+PaStream ** nastaveniPortAudioStreamuLadeni(gitara);
+
 
 void ladeniTonu()
 {
@@ -17,5 +21,77 @@ void ladeniTonu()
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VLADENI + 1);
     }
-    PaStream ** poleStreamu = nastaveniPortAudioStreamu(gitara);
+    PaStream ** poleStreamu = nastaveniPortAudioStreamuLadeni(gitara);
+    short cisloVNabidce = 0; 
+    char voliciZnak = 0;
+    short konecFunkce = 1;
+    while (konecFunkce)
+    {
+        clearScreen();
+        for (int i = 0; i < gitara.pocetTonu; i++)
+        {
+            if (cisloVNabidce == i)
+                printf("\x1b[32m"
+                       "\n%s"
+                       "\x1b[0m",
+                       gitara.nazvyTonu[i]);
+            else
+                printf("\n%s", gitara.nazvyTonu[i]);
+        }
+        voliciZnak = getCharNow();
+        switch (voliciZnak)
+        {
+        case 's':
+        case 'S':
+            if (cisloVNabidce < gitara.pocetTonu - 1)
+                cisloVNabidce++;
+            break;
+        case 'w':
+        case 'W':
+            if (cisloVNabidce > 0)
+                cisloVNabidce--;
+            break;
+        case '\n':
+        clearScreen();
+            for (int i = 0; i < gitara.pocetTonu; i++)
+            {
+                if (cisloVNabidce == i)
+                    printf("\x1b[32m"
+                           "\n### %s ### Nyní hraje ###"
+                           "\x1b[0m",
+                           gitara.nazvyTonu[i]);
+                else
+                    printf("\n%s", gitara.nazvyTonu[i]);
+            }
+            laditTon(poleStreamu[cisloVNabidce]);
+            break;
+        case 'q':
+        case 'Q':
+            konecFunkce = 0;
+
+            break;
+        }
+    }
+
+    Pa_Terminate();
+}
+
+void laditTon(PaStream * ukazatelNaStream)
+{
+
+}
+
+PaStream ** nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj){
+    PaStream ** polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
+    struct dataProStreamPrehravani *poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
+    for (int i = 0; i < nastroj.pocetTonu; i++)
+    {
+        poleDatProStream[i].frekvence = nastroj.poleTonu[i];
+        poleDatProStream[i].faze = 0;
+    }
+    for (int i = 0; i < nastroj.pocetTonu; i++)
+    {
+        //Pa_OpenDefaultStream(&polestreamu[i], 1, 0, paFloat32, vzorkovaciFrekvence, vzorkuNaBuffer, &PaCallbackLadeni, &poleDatProStream[i]);
+    }
+    return polestreamu;
 }

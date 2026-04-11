@@ -9,7 +9,7 @@
 
 void prehraniTonu(void);
 
-struct dataProStream *poleDatProStream;
+struct dataProStreamPrehravani *poleDatProStream;
 
 void hratTon(PaStream *ukazatelNaStream);
 PaStream **nastaveniPortAudioStreamu(struct hudebniNastroj nastroj);

@@ -45,10 +45,16 @@ extern int vzorkovaciFrekvence;
 extern int vzorkuNaBuffer;
 extern double cisloPi;
 
-struct dataProStream
+struct dataProStreamPrehravani
 {
     int frekvence;
     double faze;
+};
+
+struct dataProStreamLadeni
+{
+    int cilovaFrekvence;
+    
 };
 
 void praceSParametrem(char *parametry);

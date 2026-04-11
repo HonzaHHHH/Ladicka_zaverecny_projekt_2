@@ -39,7 +39,7 @@ void praceSParametrem(char *parametry)
 PaStream **nastaveniPortAudioStreamu(struct hudebniNastroj nastroj)
 {
     PaStream **polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
-    struct dataProStream *poleDatProStream = malloc(sizeof(struct dataProStream) * nastroj.pocetTonu);
+    struct dataProStreamPrehravani *poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
     for (int i = 0; i < nastroj.pocetTonu; i++)
     {
         poleDatProStream[i].frekvence = nastroj.poleTonu[i];
@@ -55,7 +55,7 @@ PaStream **nastaveniPortAudioStreamu(struct hudebniNastroj nastroj)
 int PaCallbackPrehravani(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
 {
     float *out = (float *)outputBuffer;
-    struct dataProStream *data = (struct dataProStream *)userData;
+    struct dataProStreamPrehravani *data = (struct dataProStreamPrehravani *)userData;
     double *faze = &data->faze;
     int frekvence = data->frekvence;
     for (long int i = 0; i < framesPerBuffer; i++)
