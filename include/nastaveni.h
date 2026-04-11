@@ -40,8 +40,10 @@
 #include <nacitaniStruktur.h>
 #include <portaudio.h>
 
+
+#define VZORKOVACIFREK 44100
 extern short nastaveni;
-extern int vzorkovaciFrekvence;
+extern const int vzorkovaciFrekvence;
 extern int vzorkuNaBuffer;
 extern double cisloPi;
 
@@ -53,8 +55,8 @@ struct dataProStreamPrehravani
 
 struct dataProStreamLadeni
 {
-    int cilovaFrekvence;
-    
+    float ulozisteProVstup[VZORKOVACIFREK / 4]; // asi na tech čtvrt sekundy
+    unsigned long int indexUloziste;
 };
 
 void praceSParametrem(char *parametry);

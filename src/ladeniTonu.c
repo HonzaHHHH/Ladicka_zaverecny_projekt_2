@@ -5,12 +5,10 @@
 #include <nastaveni.h>
 #include <nacitaniStruktur.h>
 
-
 void ladeniTonu();
 void laditTon(PaStream *ukazatelNaStream);
-
-PaStream ** nastaveniPortAudioStreamuLadeni(gitara);
-
+int PaCallbackLadeni(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
+PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj);
 
 void ladeniTonu()
 {
@@ -21,8 +19,8 @@ void ladeniTonu()
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VLADENI + 1);
     }
-    PaStream ** poleStreamu = nastaveniPortAudioStreamuLadeni(gitara);
-    short cisloVNabidce = 0; 
+    PaStream **poleStreamu = nastaveniPortAudioStreamuLadeni(gitara);
+    short cisloVNabidce = 0;
     char voliciZnak = 0;
     short konecFunkce = 1;
     while (konecFunkce)
@@ -52,12 +50,12 @@ void ladeniTonu()
                 cisloVNabidce--;
             break;
         case '\n':
-        clearScreen();
+            clearScreen();
             for (int i = 0; i < gitara.pocetTonu; i++)
             {
                 if (cisloVNabidce == i)
                     printf("\x1b[32m"
-                           "\n### %s ### Nyní hraje ###"
+                           "\n### %s ### Nyní ladíme ###"
                            "\x1b[0m",
                            gitara.nazvyTonu[i]);
                 else
@@ -76,13 +74,14 @@ void ladeniTonu()
     Pa_Terminate();
 }
 
-void laditTon(PaStream * ukazatelNaStream)
+void laditTon(PaStream *ukazatelNaStream)
 {
-
+    Pa_StartStream(ukazatelNaStream);
 }
 
-PaStream ** nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj){
-    PaStream ** polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
+PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj)
+{
+    PaStream **polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
     struct dataProStreamPrehravani *poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
     for (int i = 0; i < nastroj.pocetTonu; i++)
     {
@@ -91,7 +90,27 @@ PaStream ** nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj){
     }
     for (int i = 0; i < nastroj.pocetTonu; i++)
     {
-        //Pa_OpenDefaultStream(&polestreamu[i], 1, 0, paFloat32, vzorkovaciFrekvence, vzorkuNaBuffer, &PaCallbackLadeni, &poleDatProStream[i]);
+        Pa_OpenDefaultStream(&polestreamu[i], 1, 0, paFloat32, vzorkovaciFrekvence, vzorkuNaBuffer, &PaCallbackLadeni, &poleDatProStream[i]);
     }
     return polestreamu;
+}
+
+int PaCallbackLadeni(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
+{
+    float *out = (float *)outputBuffer;
+    struct dataProStreamLadeni * data = (struct dataProStreamLadeni *)userData;
+    if (inputBuffer == NULL)
+        return paContinue;
+
+    for (unsigned long int i = 0; i < framesPerBuffer; i++)
+    {
+        data->ulozisteProVstup[data->indexUloziste];
+        if (data->indexUloziste > VZORKOVACIFREK / 4 - 1)
+        {
+            data->indexUloziste = 0;
+            printf("ladi se\n");
+            //printf("frekvence %i", frekvenceZPole(&data->ulozisteProVstup));
+        }
+    }
+    return 0;
 }
