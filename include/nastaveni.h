@@ -46,6 +46,7 @@ extern short nastaveni;
 extern const int vzorkovaciFrekvence;
 extern int vzorkuNaBuffer;
 extern double cisloPi;
+extern int velikostFFTbufferu;
 
 struct dataProStreamPrehravani
 {

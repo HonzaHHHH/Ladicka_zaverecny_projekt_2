@@ -78,11 +78,22 @@ void ladeniTonu()
 
 void laditTon(PaStream *ukazatelNaStream)
 {
+    float fftbuffer[velikostFFTbufferu];
     Pa_StartStream(ukazatelNaStream);
     char stopZnak = 0;
+    kiss_fft_cfg konfig = kiss_fft_alloc(velikostFFTbufferu, 0, NULL, NULL);
+    kiss_fft_cpx komplexniRovinaVstup[velikostFFTbufferu];
+    kiss_fft_cpx komplexniRovinaVystup[velikostFFTbufferu];
     while (stopZnak != 'q' && stopZnak != 'Q')
     {
         stopZnak = getCharNow();
+        Pa_ReadStream(ukazatelNaStream, fftbuffer, velikostFFTbufferu);
+
+        for (int i = 0; i < velikostFFTbufferu; i++)
+        {
+            komplexniRovinaVstup[i].r = fftbuffer[i];
+            komplexniRovinaVstup[i].i = 0;
+        }
     }
     Pa_StopStream(ukazatelNaStream);
 }
@@ -98,29 +109,9 @@ PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj)
     }
     for (int i = 0; i < nastroj.pocetTonu; i++)
     {
-        Pa_OpenDefaultStream(&polestreamu[i], 1, 0, paFloat32, vzorkovaciFrekvence, vzorkuNaBuffer, &PaCallbackLadeni, &poleDatProStream[i]);
+        Pa_OpenDefaultStream(&polestreamu[i], 1, 0, paFloat32, vzorkovaciFrekvence, velikostFFTbufferu, NULL, NULL);
     }
     return polestreamu;
-}
-
-int PaCallbackLadeni(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
-{
-    float *out = (float *)outputBuffer;
-    struct dataProStreamLadeni * data = (struct dataProStreamLadeni *)userData;
-    if (inputBuffer == NULL)
-        return paContinue;
-
-    for (unsigned long int i = 0; i < framesPerBuffer; i++)
-    {
-        data->ulozisteProVstup[data->indexUloziste];
-        if (data->indexUloziste > VZORKOVACIFREK / 4 - 1)
-        {
-            data->indexUloziste = 0;
-            printf("ladi se\n");
-            //printf("frekvence %i", frekvenceZPole(&data->ulozisteProVstup));
-        }
-    }
-    return 0;
 }
 
 int frekvenceZPole(float * fronta) {
