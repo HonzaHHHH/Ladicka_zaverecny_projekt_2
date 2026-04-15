@@ -4,11 +4,13 @@
 #include <terminalSettings.h>
 #include <nastaveni.h>
 #include <nacitaniStruktur.h>
+#include <kiss_fft.h>
 
 void ladeniTonu();
 void laditTon(PaStream *ukazatelNaStream);
 int PaCallbackLadeni(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
 PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj);
+int frekvenceZPole(float * fronta);
 
 void ladeniTonu()
 {
@@ -77,6 +79,12 @@ void ladeniTonu()
 void laditTon(PaStream *ukazatelNaStream)
 {
     Pa_StartStream(ukazatelNaStream);
+    char stopZnak = 0;
+    while (stopZnak != 'q' && stopZnak != 'Q')
+    {
+        stopZnak = getCharNow();
+    }
+    Pa_StopStream(ukazatelNaStream);
 }
 
 PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj)
@@ -113,4 +121,8 @@ int PaCallbackLadeni(const void *inputBuffer, void *outputBuffer, unsigned long 
         }
     }
     return 0;
+}
+
+int frekvenceZPole(float * fronta) {
+    
 }
