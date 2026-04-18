@@ -1,6 +1,7 @@
 #include <portaudio.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <terminalSettings.h>
 #include <nastaveni.h>
 #include <nacitaniStruktur.h>
@@ -8,7 +9,6 @@
 
 void ladeniTonu();
 void laditTon(PaStream *ukazatelNaStream);
-int PaCallbackLadeni(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
 PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj);
 int frekvenceZPole(float * fronta);
 
@@ -86,7 +86,7 @@ void laditTon(PaStream *ukazatelNaStream)
     kiss_fft_cpx komplexniRovinaVystup[velikostFFTbufferu];
     while (stopZnak != 'q' && stopZnak != 'Q')
     {
-        stopZnak = getCharNow();
+        stopZnak = getCharNow(); // obavam se na blokujici cteni
         Pa_ReadStream(ukazatelNaStream, fftbuffer, velikostFFTbufferu);
 
         for (int i = 0; i < velikostFFTbufferu; i++)
@@ -94,6 +94,18 @@ void laditTon(PaStream *ukazatelNaStream)
             komplexniRovinaVstup[i].r = fftbuffer[i];
             komplexniRovinaVstup[i].i = 0;
         }
+        kiss_fft(konfig, komplexniRovinaVstup, komplexniRovinaVystup);
+        // zjisteni nejvetsi velikosti
+        int indexMaxima = 0;
+        for (int i = 0; i < velikostFFTbufferu; i++)
+        {
+            if (sqrt(pow((double)komplexniRovinaVystup->r, 2) + pow((double)komplexniRovinaVystup->i, 2)) > indexMaxima)
+            {
+                indexMaxima = i;
+            }
+        }
+        printf("index %i\n", indexMaxima);
+        fflush(stdout);
     }
     Pa_StopStream(ukazatelNaStream);
 }
