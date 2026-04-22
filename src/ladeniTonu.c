@@ -106,6 +106,7 @@ void laditTon(PaStream *ukazatelNaStream)
         }
         printf("index %i\n", indexMaxima);
         fflush(stdout);
+        printf("%i\n", frekvenceZPole())
     }
     Pa_StopStream(ukazatelNaStream);
 }
@@ -126,6 +127,6 @@ PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj)
     return polestreamu;
 }
 
-int frekvenceZPole(float * fronta) {
+int frekvenceZPole(kiss_fft_cpx * fronta) {
     
 }
