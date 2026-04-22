@@ -33,6 +33,10 @@ void setupKytara(void)
     strcpy(gitara.nazvyTonu[5], "Struna E4");
 }
 
+void setupHudebniNastroje() {
+
+}
+
 void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet)
 { // souor seznam nastroju bude obsahovat pocet hudebnich nastroju a nazvy jednotlivych souboru s daty nastroje
     FILE *seznamNastroju = fopen("seznamNatroju.lad", "r+");
