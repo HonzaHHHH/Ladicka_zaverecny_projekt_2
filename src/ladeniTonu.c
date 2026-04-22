@@ -5,12 +5,13 @@
 #include <terminalSettings.h>
 #include <nastaveni.h>
 #include <nacitaniStruktur.h>
+#include <ncurses.h>
 #include <kiss_fft.h>
 
 void ladeniTonu();
-void laditTon(PaStream *ukazatelNaStream);
+void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence);
 PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj);
-int frekvenceZPole(float * fronta);
+int frekvenceZPole(kiss_fft_cpx *fronta);
 
 void ladeniTonu()
 {
@@ -63,7 +64,7 @@ void ladeniTonu()
                 else
                     printf("\n%s", gitara.nazvyTonu[i]);
             }
-            laditTon(poleStreamu[cisloVNabidce]);
+            laditTon(poleStreamu[cisloVNabidce], gitara.poleTonu[cisloVNabidce]);
             break;
         case 'q':
         case 'Q':
@@ -76,7 +77,7 @@ void ladeniTonu()
     Pa_Terminate();
 }
 
-void laditTon(PaStream *ukazatelNaStream)
+void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
 {
     float fftbuffer[velikostFFTbufferu];
     Pa_StartStream(ukazatelNaStream);
@@ -84,31 +85,45 @@ void laditTon(PaStream *ukazatelNaStream)
     kiss_fft_cfg konfig = kiss_fft_alloc(velikostFFTbufferu, 0, NULL, NULL);
     kiss_fft_cpx komplexniRovinaVstup[velikostFFTbufferu];
     kiss_fft_cpx komplexniRovinaVystup[velikostFFTbufferu];
+    // inicializace ncurses pro neblkující čtení
+    WINDOW *kontextOkna = initscr();
+    cbreak();
+    nodelay(kontextOkna, true);
     while (stopZnak != 'q' && stopZnak != 'Q')
     {
-        stopZnak = getCharNow(); // obavam se na blokujici cteni
+        /*
+            Zde jsem objevil problém, že v mé knihovné terminalSettings má funkce getCharNow blokující čtení, které znemožňuje můj záměr v této části programu.
+            Jelikož je program pouze na UNIX, tak jsem využil poměrně jednoduché možnosti ncurses s aplikkováním podle webu: https://sqlpey.com/c/non-blocking-keyboard-input-techniques/
+        */
+        stopZnak = getch();
         Pa_ReadStream(ukazatelNaStream, fftbuffer, velikostFFTbufferu);
 
         for (int i = 0; i < velikostFFTbufferu; i++)
         {
-            komplexniRovinaVstup[i].r = fftbuffer[i];
+            float w = 0.5 * (1 - cos(2 * M_PI * i / (velikostFFTbufferu - 1))); // Hann
+            komplexniRovinaVstup[i].r = fftbuffer[i] * w;
             komplexniRovinaVstup[i].i = 0;
         }
         kiss_fft(konfig, komplexniRovinaVstup, komplexniRovinaVystup);
         // zjisteni nejvetsi velikosti
         int indexMaxima = 0;
-        for (int i = 0; i < velikostFFTbufferu; i++)
+        double amplitudaMaxima = 0;
+        for (int i = 0; i < velikostFFTbufferu / 2; i++)
         {
-            if (sqrt(pow((double)komplexniRovinaVystup->r, 2) + pow((double)komplexniRovinaVystup->i, 2)) > indexMaxima)
+            double aktual = sqrt(pow((double)komplexniRovinaVystup[i].r, 2) + pow((double)komplexniRovinaVystup[i].i, 2));
+            if (aktual > amplitudaMaxima)
             {
+                amplitudaMaxima = aktual;
                 indexMaxima = i;
             }
         }
-        printf("index %i\n", indexMaxima);
         fflush(stdout);
-        printf("%i\n", frekvenceZPole())
+        int frekvence = indexMaxima * vzorkovaciFrekvence / velikostFFTbufferu;
+        mvprintw(0, 0, "frekvence je %i\n", frekvence);
+        refresh();
     }
     Pa_StopStream(ukazatelNaStream);
+    endwin();
 }
 
 PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj)
@@ -125,8 +140,4 @@ PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj)
         Pa_OpenDefaultStream(&polestreamu[i], 1, 0, paFloat32, vzorkovaciFrekvence, velikostFFTbufferu, NULL, NULL);
     }
     return polestreamu;
-}
-
-int frekvenceZPole(kiss_fft_cpx * fronta) {
-    
 }

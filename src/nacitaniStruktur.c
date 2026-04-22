@@ -64,7 +64,7 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
     nastroj->poleTonu = malloc(sizeof(int) * pocetTonu);
     for (int i = 0; i < nastroj->pocetTonu; i++)
     {
-        fscanf(souborNastroje, "%i\n", nastroj->poleTonu[i]);
+        fscanf(souborNastroje, "%i\n", &nastroj->poleTonu[i]);
     }
     nastroj->nazvyTonu = malloc(sizeof(char *) * nastroj->pocetTonu);
     for (int i = 0; i < nastroj->pocetTonu; i++)
