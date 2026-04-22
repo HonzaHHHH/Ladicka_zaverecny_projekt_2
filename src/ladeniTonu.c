@@ -117,7 +117,6 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
                 indexMaxima = i;
             }
         }
-        fflush(stdout);
         int frekvence = indexMaxima * vzorkovaciFrekvence / velikostFFTbufferu;
         mvprintw(0, 0, "frekvence je %i\n", frekvence);
         refresh();
