@@ -1,3 +1,7 @@
+/*
+    Nastavení programu
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,16 +11,38 @@
 #include <math.h>
 #include <terminalSettings.h>
 
+/**
+ * Proměnná, kam se ukládají nastavení přes bitové masky
+ */
 short nastaveni = 0;
+
+
 const int vzorkovaciFrekvence = 44100;
 int vzorkuNaBuffer = 256;
 double cisloPi = 3.14159265358979323846264338327950288419716939937510f; // převzato z Wikipedie: https://cs.wikipedia.org/wiki/P%C3%AD_(%C4%8D%C3%ADslo)
 int velikostFFTbufferu = 1024;
 
-void nastaveniNastaveni();
+/**
+ * Spouští nabídku nastavení
+ */
+void nastaveniNastaveniMain();
+
 
 void vypsatNabidkuNastaveni(short index);
 
+
+/**
+ * Dostane parametry a podle toho zapne přepínače
+ */
+void praceSParametrem(char *parametry);
+
+/**
+ * Vrátí ukazatele na streamy podle struktury hudebninastroj
+ */
+PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj);
+
+
+//-----------------------------------------------------------------------------------------------------------------------------
 void praceSParametrem(char *parametry)
 {
     if (strcmp(parametry, "--ignsys") == 0) // pro ignoraci typu systému
@@ -37,7 +63,7 @@ void praceSParametrem(char *parametry)
     }
 }
 
-PaStream **nastaveniPortAudioStreamu(struct hudebniNastroj nastroj)
+PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj)
 {
     PaStream **polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
     struct dataProStreamPrehravani *poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
@@ -53,23 +79,8 @@ PaStream **nastaveniPortAudioStreamu(struct hudebniNastroj nastroj)
     return polestreamu;
 }
 
-int PaCallbackPrehravani(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
-{
-    float *out = (float *)outputBuffer;
-    struct dataProStreamPrehravani *data = (struct dataProStreamPrehravani *)userData;
-    double *faze = &data->faze;
-    int frekvence = data->frekvence;
-    for (long int i = 0; i < framesPerBuffer; i++)
-    {
-        *out++ = sin(*faze);
-        *faze += 2 * cisloPi * frekvence / vzorkovaciFrekvence;
-        if (*faze > 2 * cisloPi)
-            *faze = 0;
-    }
-    return 0;
-}
 
-void nastaveniNastaveni(void)
+void nastaveniNastaveniMain(void)
 {
     short indexNabidky = 0;
     char volba = 0;

@@ -1,3 +1,7 @@
+/*
+    Tato část kódu obsahuje kód pro přehrávání tónu, podle kterého si uživatel může ladit nástroj
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <nastaveni.h>
@@ -7,15 +11,15 @@
 #include <terminalSettings.h>
 #include <math.h>
 
-void prehraniTonu(void);
-
+void PrehravaniTonuMain(void);
 struct dataProStreamPrehravani *poleDatProStream;
-
 void hratTon(PaStream *ukazatelNaStream);
-PaStream **nastaveniPortAudioStreamu(struct hudebniNastroj nastroj);
 int PaCallbackPrehravani(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
 
-void prehraniTonu(void)
+/**
+ * Nabídka pro přehrávání tónu
+ */
+void PrehravaniTonuMain(void)
 {
     setupKytara();
     int errorPortAudio = Pa_Initialize();
@@ -24,7 +28,7 @@ void prehraniTonu(void)
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VPLAY + 1);
     }
-    PaStream **poleStreamu = nastaveniPortAudioStreamu(gitara);
+    PaStream **poleStreamu = nastaveniPortAudioStreamuPrehravani(gitara);
     short cisloVNabidce = 0;
     char voliciZnak = 0;
     short konecFunkce = 1;
@@ -78,6 +82,9 @@ void prehraniTonu(void)
     Pa_Terminate();
 }
 
+/**
+ * Začne hrát tón ze streamu
+ */
 void hratTon(PaStream *ukazatelNaStream)
 {
     Pa_StartStream(ukazatelNaStream);
@@ -87,4 +94,23 @@ void hratTon(PaStream *ukazatelNaStream)
         stopZnak = getCharNow();
     }
     Pa_StopStream(ukazatelNaStream);
+}
+
+/**
+ * Callback pro portaudio
+ */
+int PaCallbackPrehravani(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
+{
+    float *out = (float *)outputBuffer;
+    struct dataProStreamPrehravani *data = (struct dataProStreamPrehravani *)userData;
+    double *faze = &data->faze;
+    int frekvence = data->frekvence;
+    for (long int i = 0; i < framesPerBuffer; i++)
+    {
+        *out++ = sin(*faze);
+        *faze += 2 * cisloPi * frekvence / vzorkovaciFrekvence;
+        if (*faze > 2 * cisloPi)
+            *faze = 0;
+    }
+    return 0;
 }

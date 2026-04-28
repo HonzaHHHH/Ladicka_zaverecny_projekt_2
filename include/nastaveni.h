@@ -62,8 +62,8 @@ struct dataProStreamLadeni
 
 void praceSParametrem(char *parametry);
 
-PaStream ** nastaveniPortAudioStreamu(struct hudebniNastroj);
+PaStream ** nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj);
 
-void nastaveniNastaveni();
+void nastaveniNastaveniMain();
 
 #endif

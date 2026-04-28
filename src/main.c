@@ -15,12 +15,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <portaudio.h>
+#include <portaudio.h> // portaudio-19-dev
 #include <unistd.h>
 #include <nastaveni.h>
-#include <terminalSettings.h>
+#include <terminalSettings.h> // moje knihovna
 #include <prehravaniTonu.h>
-#include <ladeniTonu.h>
+#include <ladeniTonuMain.h>
+
+// Funkce pro přeheldnost deklaruji již tady (a taky se mi to více líbí)
 
 int main(int pocetParametru, char **argumenty);
 void vypsatNabidku(int aktivniPolozka);
@@ -28,7 +30,11 @@ void odejit(void);
 
 int main(int pocetArgumentu, char **argumenty)
 {
-
+    // ----------------------------------------------------------
+    /*
+        První část programu - načtení parametrů z konzole
+    */
+   // ------------------------------------------------------------
     for (int i = 1; i < pocetArgumentu; i++)
     {
         praceSParametrem(argumenty[i]);
@@ -43,6 +49,13 @@ int main(int pocetArgumentu, char **argumenty)
             exit(0);
         }
     }
+
+    // ----------------------------------------------------------------
+    /*
+        Operační systém
+        Jako nechci diskriminovat windouzy, ale je to zkoušený jen na linuxu a tím pádem to asi ještě rozjede mac, ale s windows fakt nevim
+        Toto ukončení se dá preskočit parametrem z konzole
+    */
     if (nastaveni & (1 << NASTAVENI_IGNSYS))
     {
         short OpSystem = 0;
@@ -57,7 +70,13 @@ int main(int pocetArgumentu, char **argumenty)
             printf("Je mi líto, ale tento systém není podporován\n");
         }
     }
-    setupTerminalFunctions();
+
+
+    setupTerminalFunctions(); // moje knihovna z loňského roku
+
+    // -----------------------------------------------------------------
+    // První nabídka, opět bez kanonického režimu
+
     char volici = 0;
     short cisloVNabidce = 0;
     while (1)
@@ -73,13 +92,13 @@ int main(int pocetArgumentu, char **argumenty)
             switch (cisloVNabidce)
             {
             case 0:
-                prehraniTonu();
+                PrehravaniTonuMain();
                 break;
             case 1:
-                ladeniTonu();
+                ladeniTonuMain();
                 break;
             case 2:
-                nastaveniNastaveni();
+                nastaveniNastaveniMain();
                 break;
             case 3:
                 odejit();

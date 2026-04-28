@@ -1,3 +1,9 @@
+/*
+    Tato část kódu složí k načítání struktur hudebních nástrojů ze souborů
+    !!!! POZOR !!!!!
+    Tato část obsahuje velké zbytky po prvním testování, kód je psán velmi jednoduše, abych se mohl soustředit na hlavní problematiku souboru a ne na blbý struktury
+*/
+
 #include <stdlib.h>
 #include <nacitaniStruktur.h>
 #include <stdio.h>

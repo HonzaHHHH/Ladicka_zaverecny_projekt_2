@@ -1,3 +1,8 @@
+/**
+ * Zde se bude ladit nástroj
+ */
+
+
 #include <portaudio.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,12 +13,21 @@
 #include <ncurses.h>
 #include <kiss_fft.h>
 
-void ladeniTonu();
-void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence);
-PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj);
-int frekvenceZPole(kiss_fft_cpx *fronta);
+/**
+ * spustí nabídku pro ladění
+ */
+void ladeniTonuMain();
 
-void ladeniTonu()
+/**
+ * Funkce bude ladit, není zde třeba žádny callback pro portaudio, protože jsem objevil funkci readStream, kterou bych mohl vyuižívat pro přehrávání tónu, ale nebyla by to taková zábava, proto ji používám pouze zde
+ */
+void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence);
+
+PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj);
+
+//------------------------------------------------------------------------------------------------------------------------------
+
+void ladeniTonuMain()
 {
     setupKytara();
     int errorPortAudio = Pa_Initialize();
@@ -100,7 +114,7 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
 
         for (int i = 0; i < velikostFFTbufferu; i++)
         {
-            float w = 0.5 * (1 - cos(2 * M_PI * i / (velikostFFTbufferu - 1))); // Hann
+            float w = 0.5 * (1 - cos(2 * M_PI * i / (velikostFFTbufferu - 1))); // Zde jsem musel využít ChatGPT pro vyhlazení průběhu pro zpracování přes kissfft
             komplexniRovinaVstup[i].r = fftbuffer[i] * w;
             komplexniRovinaVstup[i].i = 0;
         }
@@ -110,14 +124,14 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
         double amplitudaMaxima = 0;
         for (int i = 0; i < velikostFFTbufferu / 2; i++)
         {
-            double aktual = sqrt(pow((double)komplexniRovinaVystup[i].r, 2) + pow((double)komplexniRovinaVystup[i].i, 2));
+            double aktual = sqrt(pow((double)komplexniRovinaVystup[i].r, 2) + pow((double)komplexniRovinaVystup[i].i, 2)); // velikost komplexního čísla
             if (aktual > amplitudaMaxima)
             {
                 amplitudaMaxima = aktual;
                 indexMaxima = i;
             }
         }
-        int frekvence = indexMaxima * vzorkovaciFrekvence / velikostFFTbufferu;
+        int frekvence = indexMaxima * vzorkovaciFrekvence / velikostFFTbufferu; // portaudio ukládá frekvence podle indexu, takze zde vezmu index, který vynásobím vzorkovací frekvenci a nakonec vydělím velikostí bufferu
         mvprintw(0, 0, "frekvence je %i\n", frekvence);
         refresh();
     }
