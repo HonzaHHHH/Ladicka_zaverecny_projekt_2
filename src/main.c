@@ -20,7 +20,7 @@
 #include <nastaveni.h>
 #include <terminalSettings.h> // moje knihovna
 #include <prehravaniTonu.h>
-#include <ladeniTonuMain.h>
+#include <ladeniTonu.h>
 
 // Funkce pro přeheldnost deklaruji již tady (a taky se mi to více líbí)
 
