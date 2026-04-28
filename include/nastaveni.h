@@ -1,3 +1,7 @@
+/*
+Část pro nastavení - zde jsou definována různá makra a proměnné
+ */
+
 #ifndef NASTAVENI_H_
 #define NASTAVENI_H_
 
@@ -43,7 +47,7 @@
 
 #define VZORKOVACIFREK 44100
 extern short nastaveni;
-extern const int vzorkovaciFrekvence;
+extern const int vzorkovaciFrekvence; // nemá smysl, na kritických místech je třeba používat makro
 extern int vzorkuNaBuffer;
 extern double cisloPi;
 extern int velikostFFTbufferu;
@@ -52,12 +56,6 @@ struct dataProStreamPrehravani
 {
     int frekvence;
     double faze;
-};
-
-struct dataProStreamLadeni
-{
-    float ulozisteProVstup[VZORKOVACIFREK / 4]; // asi na tech čtvrt sekundy
-    unsigned long int indexUloziste;
 };
 
 void praceSParametrem(char *parametry);

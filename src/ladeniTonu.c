@@ -68,16 +68,6 @@ void ladeniTonuMain()
             break;
         case '\n':
             clearScreen();
-            for (int i = 0; i < gitara.pocetTonu; i++)
-            {
-                if (cisloVNabidce == i)
-                    printf("\x1b[32m"
-                           "\n### %s ### Nyní ladíme ###"
-                           "\x1b[0m",
-                           gitara.nazvyTonu[i]);
-                else
-                    printf("\n%s", gitara.nazvyTonu[i]);
-            }
             laditTon(poleStreamu[cisloVNabidce], gitara.poleTonu[cisloVNabidce]);
             break;
         case 'q':
@@ -114,7 +104,7 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
 
         for (int i = 0; i < velikostFFTbufferu; i++)
         {
-            float w = 0.5 * (1 - cos(2 * M_PI * i / (velikostFFTbufferu - 1))); // Zde jsem musel využít ChatGPT pro vyhlazení průběhu pro zpracování přes kissfft
+            float w = 0.5 * (1 - cos((double)2 * cisloPi * i / (velikostFFTbufferu - 1))); // Zde jsem musel využít ChatGPT pro vyhlazení průběhu pro zpracování přes kissfft
             komplexniRovinaVstup[i].r = fftbuffer[i] * w;
             komplexniRovinaVstup[i].i = 0;
         }
@@ -131,8 +121,9 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
                 indexMaxima = i;
             }
         }
+        // DODĚLAT INTERVAL OD 1/8 FREKVENCE DO 15/8 FREKVENCE // na základě mého pozorování 
         int frekvence = indexMaxima * vzorkovaciFrekvence / velikostFFTbufferu; // portaudio ukládá frekvence podle indexu, takze zde vezmu index, který vynásobím vzorkovací frekvenci a nakonec vydělím velikostí bufferu
-        mvprintw(0, 0, "Frekvence je %i           ", frekvence);
+        mvprintw(0, 0, "Frekvence je %i                 ", frekvence);
         mvprintw(1, 0, "Je treba preladit o %i Hz       ", cilovaFrekvence - frekvence);
         refresh();
     }
