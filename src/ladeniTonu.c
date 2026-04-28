@@ -132,7 +132,8 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
             }
         }
         int frekvence = indexMaxima * vzorkovaciFrekvence / velikostFFTbufferu; // portaudio ukládá frekvence podle indexu, takze zde vezmu index, který vynásobím vzorkovací frekvenci a nakonec vydělím velikostí bufferu
-        mvprintw(0, 0, "frekvence je %i\n", frekvence);
+        mvprintw(0, 0, "Frekvence je %i           ", frekvence);
+        mvprintw(1, 0, "Je treba preladit o %i Hz       ", cilovaFrekvence - frekvence);
         refresh();
     }
     Pa_StopStream(ukazatelNaStream);
