@@ -61,15 +61,15 @@ void setupKytara(void)
 short setupHudebniNastroje() {
     char **poleNazvuProSoubory;
     int pocetSouboru;
-    tvorbaPoleUlozenychNastroju(poleNazvuProSoubory, &pocetSouboru);
+    tvorbaPoleUlozenychNastroju(poleNazvuProSoubory, &pocetSouboru); // ziska názvy souborů
     if (poleNazvuProSoubory == NULL || pocetSouboru == 0)
     {
         return 1;
     }
-    poleNastroju = malloc(pocetSouboru * sizeof(struct hudebniNastroj));
+    poleNastroju = malloc(pocetSouboru * sizeof(struct hudebniNastroj)); // alokuje misto pro soubory
     for (int i = 0; i < pocetSouboru; i++)
     {
-        setupHudebniNastroj(&poleNastroju[i], poleNazvuProSoubory[i]);
+        setupHudebniNastroj(&poleNastroju[i], poleNazvuProSoubory[i]); // načte nastavení ze souborů do pole nástrojů
     }
 }
 
