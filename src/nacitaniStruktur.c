@@ -4,6 +4,16 @@
     Tato část obsahuje velké zbytky po prvním testování, kód je psán velmi jednoduše, abych se mohl soustředit na hlavní problematiku souboru a ne na blbý struktury
 */
 
+/*
+
+Struktura souboru pro ukladani jednotlivych souboru
+
+
+
+
+
+*/
+
 #include <stdlib.h>
 #include <nacitaniStruktur.h>
 #include <stdio.h>
@@ -14,6 +24,12 @@
 struct hudebniNastroj gitara;
 void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj);
 void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet);
+void setupKytara(void);
+short setupHudebniNastroje(void);
+void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru);
+
+
+// --------------------------------------------------------------------
 
 void setupKytara(void)
 {
@@ -39,13 +55,27 @@ void setupKytara(void)
     strcpy(gitara.nazvyTonu[5], "Struna E4");
 }
 
-void setupHudebniNastroje() {
-
+/**
+ * nastaví vsechny hudební nástroje
+ */
+short setupHudebniNastroje() {
+    char **poleNazvuProSoubory;
+    int pocetSouboru;
+    tvorbaPoleUlozenychNastroju(poleNazvuProSoubory, &pocetSouboru);
+    if (poleNazvuProSoubory == NULL || pocetSouboru == 0)
+    {
+        return 1;
+    }
+    poleNastroju = malloc(pocetSouboru * sizeof(struct hudebniNastroj));
+    for (int i = 0; i < pocetSouboru; i++)
+    {
+        setupHudebniNastroj(&poleNastroju[i], poleNazvuProSoubory[i]);
+    }
 }
 
 void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet)
 { // souor seznam nastroju bude obsahovat pocet hudebnich nastroju a nazvy jednotlivych souboru s daty nastroje
-    FILE *seznamNastroju = fopen("seznamNatroju.lad", "r+");
+    FILE *seznamNastroju = fopen("seznamNastroju.lad", "r+");
     if (seznamNastroju == NULL)
     {
         nazvy = NULL;
@@ -53,7 +83,6 @@ void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet)
         return;
     }
     rewind(seznamNastroju);
-
     fscanf(seznamNastroju, "%i\n", pocet);
     nazvy = malloc(*pocet * MAXIMALNI_DELKA_SEZNAMU_NASTROJU * sizeof(char));
     fclose(seznamNastroju);
