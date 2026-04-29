@@ -142,13 +142,13 @@ void odejit(void)
     case 'a':
         clearScreen();
         printf("Program ukončen\n");
-        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("(Hajzle!)\n");
+        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("(Ty hajzle!)\n");
         exit(EXIT_NORMALNI);
         break;
     case 'A':
         clearScreen();
         printf("Program ukončen\n");
-        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("(Hajzle!)\n");
+        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("(Ty hajzle!)\n");
         exit(EXIT_NORMALNI);
     case 'n':
         clearScreen();
