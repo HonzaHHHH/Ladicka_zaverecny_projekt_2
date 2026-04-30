@@ -22,6 +22,7 @@ Struktura souboru pro ukladani jednotlivych souboru
 #define MAXIMALNI_DELKA_SEZNAMU_NASTROJU 20
 
 struct hudebniNastroj gitara;
+struct hudebniNastroj * poleNastroju;
 void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj);
 void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet);
 void setupKytara(void);
@@ -71,6 +72,15 @@ short setupHudebniNastroje() {
     {
         setupHudebniNastroj(&poleNastroju[i], poleNazvuProSoubory[i]); // načte nastavení ze souborů do pole nástrojů
     }
+
+}
+/*
+/**
+ * uvolní paměť
+ */
+short konecHudebnichNastroju(void)
+{
+
 }
 
 void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet)

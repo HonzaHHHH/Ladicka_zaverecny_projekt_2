@@ -11,7 +11,7 @@ struct hudebniNastroj
 
 extern struct hudebniNastroj gitara;
 
-struct hudebniNastroj * poleNastroju;
+extern struct hudebniNastroj * poleNastroju;
 
 void setupKytara(void);
 
