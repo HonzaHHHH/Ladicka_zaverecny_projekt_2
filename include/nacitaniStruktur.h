@@ -13,6 +13,8 @@ extern struct hudebniNastroj gitara;
 
 extern struct hudebniNastroj * poleNastroju;
 
+short setupHudebniNastroje(char **poleNazvuProSoubory, int* pocetSouboru);
+
 void setupKytara(void);
 
 #endif

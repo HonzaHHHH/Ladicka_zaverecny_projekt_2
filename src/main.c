@@ -74,6 +74,14 @@ int main(int pocetArgumentu, char **argumenty)
 
     setupTerminalFunctions(); // moje knihovna z loňského roku
 
+
+    char ** soubory_nazvySouboru;
+    int soubory_pocetSouboru;
+
+    // SETUP hudebnich nástrojů
+    setupHudebniNastroje(soubory_nazvySouboru, &soubory_pocetSouboru);
+
+
     // -----------------------------------------------------------------
     // První nabídka, opět bez kanonického režimu
 
@@ -92,6 +100,11 @@ int main(int pocetArgumentu, char **argumenty)
             switch (cisloVNabidce)
             {
             case 0:
+            if (soubory_pocetSouboru == 0)
+            {
+                printf("zadne soubory");
+                break;
+            }
                 PrehravaniTonuMain();
                 break;
             case 1:

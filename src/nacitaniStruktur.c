@@ -26,7 +26,7 @@ struct hudebniNastroj * poleNastroju;
 void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj);
 void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet);
 void setupKytara(void);
-short setupHudebniNastroje(void);
+short setupHudebniNastroje(char **poleNazvuProSoubory, int* pocetSouboru);
 void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru);
 
 
@@ -59,27 +59,28 @@ void setupKytara(void)
 /**
  * nastaví vsechny hudební nástroje
  */
-short setupHudebniNastroje() {
-    char **poleNazvuProSoubory;
-    int pocetSouboru;
-    tvorbaPoleUlozenychNastroju(poleNazvuProSoubory, &pocetSouboru); // ziska názvy souborů
+short setupHudebniNastroje(char **poleNazvuProSoubory, int* pocetSouboru) {
+
+    tvorbaPoleUlozenychNastroju(poleNazvuProSoubory, pocetSouboru); // ziska názvy souborů
     if (poleNazvuProSoubory == NULL || pocetSouboru == 0)
     {
         return 1;
     }
-    poleNastroju = malloc(pocetSouboru * sizeof(struct hudebniNastroj)); // alokuje misto pro soubory
-    for (int i = 0; i < pocetSouboru; i++)
+    poleNastroju = malloc(*pocetSouboru * sizeof(struct hudebniNastroj)); // alokuje misto pro soubory
+    for (int i = 0; i < *pocetSouboru; i++)
     {
         setupHudebniNastroj(&poleNastroju[i], poleNazvuProSoubory[i]); // načte nastavení ze souborů do pole nástrojů
     }
-
+    return 0;
 }
-/*
+
+
 /**
  * uvolní paměť
  */
 short konecHudebnichNastroju(void)
 {
+    
 
 }
 
@@ -98,6 +99,11 @@ void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet)
     fclose(seznamNastroju);
 }
 
+
+/**
+ * nastaveni konkretniho nastroje
+ * 
+*/
 void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
 {
     FILE *souborNastroje = fopen(nazevSouboru, "r+");

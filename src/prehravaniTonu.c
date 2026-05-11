@@ -21,7 +21,6 @@ int PaCallbackPrehravani(const void *inputBuffer, void *outputBuffer, unsigned l
  */
 void PrehravaniTonuMain(void)
 {
-    setupKytara();
     int errorPortAudio = Pa_Initialize();
     if (errorPortAudio != paNoError)
     {
