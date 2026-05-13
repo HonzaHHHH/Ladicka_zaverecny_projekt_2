@@ -11,9 +11,12 @@ struct hudebniNastroj
 
 extern struct hudebniNastroj gitara;
 
-extern struct hudebniNastroj * poleNastroju;
 
-short setupHudebniNastroje(char **poleNazvuProSoubory, int* pocetSouboru);
+extern struct hudebniNastroj * hudebniNastrojePole;
+extern int soubory_pocetSouboru;
+extern int soubory_aktualniNastroj;
+
+short setupHudebniNastroje();
 
 void setupKytara(void);
 

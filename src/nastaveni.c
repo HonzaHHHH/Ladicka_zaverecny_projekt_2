@@ -16,7 +16,6 @@
  */
 short nastaveni = 0;
 
-
 const int vzorkovaciFrekvence = 44100;
 int vzorkuNaBuffer = 256;
 double cisloPi = (double)3.14159265358979323846264338327950288419716939937510f; // převzato z Wikipedie: https://cs.wikipedia.org/wiki/P%C3%AD_(%C4%8D%C3%ADslo)
@@ -27,9 +26,7 @@ int velikostFFTbufferu = 32768;
  */
 void nastaveniNastaveniMain();
 
-
 void vypsatNabidkuNastaveni(short index);
-
 
 /**
  * Dostane parametry a podle toho zapne přepínače
@@ -40,7 +37,6 @@ void praceSParametrem(char *parametry);
  * Vrátí ukazatele na streamy podle struktury hudebninastroj
  */
 PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj);
-
 
 //-----------------------------------------------------------------------------------------------------------------------------
 void praceSParametrem(char *parametry)
@@ -65,6 +61,8 @@ void praceSParametrem(char *parametry)
 
 PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj)
 {
+    if (&nastroj == NULL)
+        return NULL;
     PaStream **polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
     struct dataProStreamPrehravani *poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
     for (int i = 0; i < nastroj.pocetTonu; i++)
@@ -78,7 +76,6 @@ PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj)
     }
     return polestreamu;
 }
-
 
 void nastaveniNastaveniMain(void)
 {

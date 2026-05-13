@@ -21,12 +21,16 @@ Struktura souboru pro ukladani jednotlivych souboru
 
 #define MAXIMALNI_DELKA_SEZNAMU_NASTROJU 20
 
+struct hudebniNastroj * hudebniNastrojePole = NULL;
+char ** soubory_nazvySouboru;
+int soubory_pocetSouboru;
+int soubory_aktualniNastroj = 0;
+
 struct hudebniNastroj gitara;
-struct hudebniNastroj * poleNastroju;
 void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj);
 void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet);
 void setupKytara(void);
-short setupHudebniNastroje(char **poleNazvuProSoubory, int* pocetSouboru);
+short setupHudebniNastroje(void);
 void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru);
 
 
@@ -59,17 +63,16 @@ void setupKytara(void)
 /**
  * nastaví vsechny hudební nástroje
  */
-short setupHudebniNastroje(char **poleNazvuProSoubory, int* pocetSouboru) {
-
-    tvorbaPoleUlozenychNastroju(poleNazvuProSoubory, pocetSouboru); // ziska názvy souborů
-    if (poleNazvuProSoubory == NULL || pocetSouboru == 0)
+short setupHudebniNastroje() {
+    tvorbaPoleUlozenychNastroju(soubory_nazvySouboru, &soubory_pocetSouboru); // ziska názvy souborů
+    if (soubory_nazvySouboru == NULL || soubory_pocetSouboru == 0)
     {
         return 1;
     }
-    poleNastroju = malloc(*pocetSouboru * sizeof(struct hudebniNastroj)); // alokuje misto pro soubory
-    for (int i = 0; i < *pocetSouboru; i++)
+    hudebniNastrojePole = malloc(soubory_pocetSouboru * sizeof(struct hudebniNastroj)); // alokuje misto pro soubory
+    for (int i = 0; i < soubory_pocetSouboru; i++)
     {
-        setupHudebniNastroj(&poleNastroju[i], poleNazvuProSoubory[i]); // načte nastavení ze souborů do pole nástrojů
+        setupHudebniNastroj(&hudebniNastrojePole[i], soubory_nazvySouboru[i]); // načte nastavení ze souborů do pole nástrojů
     }
     return 0;
 }

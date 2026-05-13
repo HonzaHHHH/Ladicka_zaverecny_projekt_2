@@ -10,6 +10,7 @@
 #include <portaudio.h>
 #include <terminalSettings.h>
 #include <math.h>
+#include <unistd.h>
 
 void PrehravaniTonuMain(void);
 struct dataProStreamPrehravani *poleDatProStream;
@@ -27,7 +28,14 @@ void PrehravaniTonuMain(void)
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VPLAY + 1);
     }
-    PaStream **poleStreamu = nastaveniPortAudioStreamuPrehravani(gitara);
+    if (&hudebniNastrojePole[soubory_aktualniNastroj] == NULL)
+    {
+        printf("Nebyly zjištěny zádné nástroje, zkuste Nastavení\n");
+        sleep(2);
+        Pa_Terminate();
+        return;
+    }
+    PaStream **poleStreamu = nastaveniPortAudioStreamuPrehravani(hudebniNastrojePole[soubory_aktualniNastroj]);
     short cisloVNabidce = 0;
     char voliciZnak = 0;
     short konecFunkce = 1;
