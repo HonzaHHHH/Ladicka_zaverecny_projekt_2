@@ -98,10 +98,11 @@ void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet)
     }
     rewind(seznamNastroju);
     fscanf(seznamNastroju, "%i\n", pocet);
-    *nazvy = malloc(*pocet * MAXIMALNI_DELKA_SEZNAMU_NASTROJU * sizeof(char));
+    *nazvy = malloc(*pocet * sizeof(char *));
     for (int i = 0; i < *pocet; i++)
     {
-        fscanf(seznamNastroju, "%s", &(*nazvy)[i * MAXIMALNI_DELKA_SEZNAMU_NASTROJU]);
+        (*nazvy)[i] = malloc(MAXIMALNI_DELKA_SEZNAMU_NASTROJU);
+        fscanf(seznamNastroju, "%19s\n", (*nazvy)[i]);
     }
     fclose(seznamNastroju);
 }

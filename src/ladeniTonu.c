@@ -12,6 +12,7 @@
 #include <nacitaniStruktur.h>
 #include <ncurses.h>
 #include <kiss_fft.h>
+#include <unistd.h>
 
 /**
  * spustí nabídku pro ladění
