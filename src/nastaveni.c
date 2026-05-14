@@ -59,12 +59,28 @@ void praceSParametrem(char *parametry)
     }
 }
 
+extern struct dataProStreamPrehravani *poleDatProStream;
+
 PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj)
 {
-    if (&nastroj == NULL)
+    if (nastroj.pocetTonu <= 0 || nastroj.poleTonu == NULL)
+    {
+        printf("Chyba: napadly nastroj ma pocetTonu=%d, poleTonu=%p\n", nastroj.pocetTonu, (void *)nastroj.poleTonu);
         return NULL;
+    }
     PaStream **polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
-    struct dataProStreamPrehravani *poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
+    if (polestreamu == NULL)
+    {
+        printf("Chyba: nepodarilo se alokovat poleStreamu\n");
+        return NULL;
+    }
+    poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
+    if (poleDatProStream == NULL)
+    {
+        printf("Chyba: nepodarilo se alokovat poleDatProStream\n");
+        free(polestreamu);
+        return NULL;
+    }
     for (int i = 0; i < nastroj.pocetTonu; i++)
     {
         poleDatProStream[i].frekvence = nastroj.poleTonu[i];
@@ -72,7 +88,17 @@ PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj)
     }
     for (int i = 0; i < nastroj.pocetTonu; i++)
     {
-        Pa_OpenDefaultStream(&polestreamu[i], 0, 1, paFloat32, vzorkovaciFrekvence, vzorkuNaBuffer, &PaCallbackPrehravani, &poleDatProStream[i]);
+        int paErr = Pa_OpenDefaultStream(&polestreamu[i], 0, 1, paFloat32, vzorkovaciFrekvence, vzorkuNaBuffer, &PaCallbackPrehravani, &poleDatProStream[i]);
+        if (paErr != paNoError)
+        {
+            printf("PortAudio OpenStream error: %s\n", Pa_GetErrorText(paErr));
+            for (int j = 0; j < i; j++)
+                Pa_CloseStream(polestreamu[j]);
+            free(polestreamu);
+            free(poleDatProStream);
+            poleDatProStream = NULL;
+            return NULL;
+        }
     }
     return polestreamu;
 }

@@ -146,10 +146,12 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
     endwin();
 }
 
+extern struct dataProStreamPrehravani *poleDatProStream;
+
 PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj nastroj)
 {
     PaStream **polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
-    struct dataProStreamPrehravani *poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
+    poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
     for (int i = 0; i < nastroj.pocetTonu; i++)
     {
         poleDatProStream[i].frekvence = nastroj.poleTonu[i];

@@ -36,6 +36,13 @@ void PrehravaniTonuMain(void)
         return;
     }
     PaStream **poleStreamu = nastaveniPortAudioStreamuPrehravani(hudebniNastrojePole[soubory_aktualniNastroj]);
+    if (poleStreamu == NULL)
+    {
+        printf("Chyba v poli streamu\n");
+        sleep(1);
+        Pa_Terminate();
+        return;
+    }
     short cisloVNabidce = 0;
     char voliciZnak = 0;
     short konecFunkce = 1;

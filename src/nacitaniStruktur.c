@@ -89,7 +89,7 @@ short konecHudebnichNastroju(void)
 
 void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet)
 { // souor seznam nastroju bude obsahovat pocet hudebnich nastroju a nazvy jednotlivych souboru s daty nastroje
-    FILE *seznamNastroju = fopen("seznamNastroju.lad", "r+");
+    FILE *seznamNastroju = fopen("seznamNastroju.lad", "r");
     if (seznamNastroju == NULL)
     {
         *nazvy = NULL;
@@ -117,25 +117,88 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
     FILE *souborNastroje = fopen(nazevSouboru, "r+");
     if (souborNastroje == NULL)
     {
-        souborNastroje = NULL;
+        nastroj->pocetTonu = 0;
+        nastroj->poleTonu = NULL;
+        nastroj->nazvyTonu = NULL;
+        nastroj->nazev[0] = '\0';
         return;
     }
     rewind(souborNastroje);
     int pocetTonu;
-    fscanf(souborNastroje, "%i\n", &pocetTonu);
+    if (fscanf(souborNastroje, "%i\n", &pocetTonu) != 1 || pocetTonu <= 0)
+    {
+        nastroj->pocetTonu = 0;
+        nastroj->poleTonu = NULL;
+        nastroj->nazvyTonu = NULL;
+        nastroj->nazev[0] = '\0';
+        fclose(souborNastroje);
+        return;
+    }
     nastroj->pocetTonu = pocetTonu;
     nastroj->poleTonu = malloc(sizeof(int) * pocetTonu);
+    if (nastroj->poleTonu == NULL)
+    {
+        fclose(souborNastroje);
+        nastroj->pocetTonu = 0;
+        nastroj->nazvyTonu = NULL;
+        nastroj->nazev[0] = '\0';
+        return;
+    }
     for (int i = 0; i < nastroj->pocetTonu; i++)
     {
-        fscanf(souborNastroje, "%i\n", &nastroj->poleTonu[i]);
+        if (fscanf(souborNastroje, "%i\n", &nastroj->poleTonu[i]) != 1)
+        {
+            free(nastroj->poleTonu);
+            nastroj->pocetTonu = 0;
+            nastroj->poleTonu = NULL;
+            nastroj->nazvyTonu = NULL;
+            nastroj->nazev[0] = '\0';
+            fclose(souborNastroje);
+            return;
+        }
     }
     nastroj->nazvyTonu = malloc(sizeof(char *) * nastroj->pocetTonu);
+    if (nastroj->nazvyTonu == NULL)
+    {
+        free(nastroj->poleTonu);
+        nastroj->pocetTonu = 0;
+        nastroj->poleTonu = NULL;
+        nastroj->nazev[0] = '\0';
+        fclose(souborNastroje);
+        return;
+    }
     for (int i = 0; i < nastroj->pocetTonu; i++)
     {
         nastroj->nazvyTonu[i] = malloc(50);
-        fscanf(souborNastroje, "%49s\n", nastroj->nazvyTonu[i]);
+        if (nastroj->nazvyTonu[i] == NULL || fscanf(souborNastroje, "%49s\n", nastroj->nazvyTonu[i]) != 1)
+        {
+            for (int j = 0; j <= i; j++)
+            {
+                free(nastroj->nazvyTonu[j]);
+            }
+            free(nastroj->nazvyTonu);
+            free(nastroj->poleTonu);
+            nastroj->pocetTonu = 0;
+            nastroj->poleTonu = NULL;
+            nastroj->nazvyTonu = NULL;
+            nastroj->nazev[0] = '\0';
+            fclose(souborNastroje);
+            return;
+        }
     }
-    fscanf(souborNastroje, "%49s\n", nastroj->nazev);
+    if (fscanf(souborNastroje, "%49s\n", nastroj->nazev) != 1)
+    {
+        for (int i = 0; i < nastroj->pocetTonu; i++)
+            free(nastroj->nazvyTonu[i]);
+        free(nastroj->nazvyTonu);
+        free(nastroj->poleTonu);
+        nastroj->pocetTonu = 0;
+        nastroj->poleTonu = NULL;
+        nastroj->nazvyTonu = NULL;
+        nastroj->nazev[0] = '\0';
+        fclose(souborNastroje);
+        return;
+    }
     odstranitPodtrzitkaZNastroje(nastroj);
     fclose(souborNastroje);
 }
