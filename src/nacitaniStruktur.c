@@ -28,7 +28,7 @@ int soubory_aktualniNastroj = 0;
 
 struct hudebniNastroj gitara;
 void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj);
-void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet);
+void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet);
 void setupKytara(void);
 short setupHudebniNastroje(void);
 void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru);
@@ -64,7 +64,7 @@ void setupKytara(void)
  * nastaví vsechny hudební nástroje
  */
 short setupHudebniNastroje() {
-    tvorbaPoleUlozenychNastroju(soubory_nazvySouboru, &soubory_pocetSouboru); // ziska názvy souborů
+    tvorbaPoleUlozenychNastroju(&soubory_nazvySouboru, &soubory_pocetSouboru); // ziska názvy souborů
     if (soubory_nazvySouboru == NULL || soubory_pocetSouboru == 0)
     {
         return 1;
@@ -87,18 +87,22 @@ short konecHudebnichNastroju(void)
 
 }
 
-void tvorbaPoleUlozenychNastroju(char **nazvy, int *pocet)
+void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet)
 { // souor seznam nastroju bude obsahovat pocet hudebnich nastroju a nazvy jednotlivych souboru s daty nastroje
     FILE *seznamNastroju = fopen("seznamNastroju.lad", "r+");
     if (seznamNastroju == NULL)
     {
-        nazvy = NULL;
-        pocet = 0;
+        *nazvy = NULL;
+        *pocet = 0;
         return;
     }
     rewind(seznamNastroju);
     fscanf(seznamNastroju, "%i\n", pocet);
-    nazvy = malloc(*pocet * MAXIMALNI_DELKA_SEZNAMU_NASTROJU * sizeof(char));
+    *nazvy = malloc(*pocet * MAXIMALNI_DELKA_SEZNAMU_NASTROJU * sizeof(char));
+    for (int i = 0; i < *pocet; i++)
+    {
+        fscanf(seznamNastroju, "%s", &(*nazvy)[i * MAXIMALNI_DELKA_SEZNAMU_NASTROJU]);
+    }
     fclose(seznamNastroju);
 }
 
@@ -127,10 +131,10 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
     nastroj->nazvyTonu = malloc(sizeof(char *) * nastroj->pocetTonu);
     for (int i = 0; i < nastroj->pocetTonu; i++)
     {
-        fscanf(souborNastroje, "%s\n", nastroj->nazvyTonu[i]);
-
+        nastroj->nazvyTonu[i] = malloc(50);
+        fscanf(souborNastroje, "%49s\n", nastroj->nazvyTonu[i]);
     }
-    fscanf(souborNastroje, "%s\n", nastroj->nazev);
+    fscanf(souborNastroje, "%49s\n", nastroj->nazev);
     odstranitPodtrzitkaZNastroje(nastroj);
     fclose(souborNastroje);
 }

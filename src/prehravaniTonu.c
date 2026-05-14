@@ -28,7 +28,7 @@ void PrehravaniTonuMain(void)
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VPLAY + 1);
     }
-    if (&hudebniNastrojePole[soubory_aktualniNastroj] == NULL)
+    if (hudebniNastrojePole == NULL || soubory_pocetSouboru == 0)
     {
         printf("Nebyly zjištěny zádné nástroje, zkuste Nastavení\n");
         sleep(2);
@@ -42,22 +42,22 @@ void PrehravaniTonuMain(void)
     while (konecFunkce)
     {
         clearScreen();
-        for (int i = 0; i < gitara.pocetTonu; i++)
+        for (int i = 0; i < hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu; i++)
         {
             if (cisloVNabidce == i)
                 printf("\x1b[32m"
                        "\n%s"
                        "\x1b[0m",
-                       gitara.nazvyTonu[i]);
+                       hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
             else
-                printf("\n%s", gitara.nazvyTonu[i]);
+                printf("\n%s", hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
         }
         voliciZnak = getCharNow();
         switch (voliciZnak)
         {
         case 's':
         case 'S':
-            if (cisloVNabidce < gitara.pocetTonu - 1)
+            if (cisloVNabidce < hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu - 1)
                 cisloVNabidce++;
             break;
         case 'w':
@@ -67,15 +67,15 @@ void PrehravaniTonuMain(void)
             break;
         case '\n':
         clearScreen();
-            for (int i = 0; i < gitara.pocetTonu; i++)
+            for (int i = 0; i < hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu; i++)
             {
                 if (cisloVNabidce == i)
                     printf("\x1b[32m"
                            "\n### %s ### Nyní hraje ###"
                            "\x1b[0m",
-                           gitara.nazvyTonu[i]);
+                           hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
                 else
-                    printf("\n%s", gitara.nazvyTonu[i]);
+                    printf("\n%s", hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
             }
             hratTon(poleStreamu[cisloVNabidce]);
             break;
