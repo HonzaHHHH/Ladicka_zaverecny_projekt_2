@@ -31,7 +31,7 @@ void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj);
 void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet);
 void setupKytara(void);
 short setupHudebniNastroje(void);
-void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru);
+int setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru);
 
 
 // --------------------------------------------------------------------
@@ -65,14 +65,30 @@ void setupKytara(void)
  */
 short setupHudebniNastroje() {
     tvorbaPoleUlozenychNastroju(&soubory_nazvySouboru, &soubory_pocetSouboru); // ziska názvy souborů
-    if (soubory_nazvySouboru == NULL || soubory_pocetSouboru == 0)
+    if (soubory_nazvySouboru == NULL || soubory_pocetSouboru <= 0)
     {
         return 1;
     }
     hudebniNastrojePole = malloc(soubory_pocetSouboru * sizeof(struct hudebniNastroj)); // alokuje misto pro soubory
+    if (hudebniNastrojePole == NULL)
+    {
+        return 1;
+    }
     for (int i = 0; i < soubory_pocetSouboru; i++)
     {
-        setupHudebniNastroj(&hudebniNastrojePole[i], soubory_nazvySouboru[i]); // načte nastavení ze souborů do pole nástrojů
+        if (!setupHudebniNastroj(&hudebniNastrojePole[i], soubory_nazvySouboru[i]))
+        {
+            for (int j = 0; j < i; j++)
+            {
+                free(hudebniNastrojePole[j].poleTonu);
+                for (int k = 0; k < hudebniNastrojePole[j].pocetTonu; k++)
+                    free(hudebniNastrojePole[j].nazvyTonu[k]);
+                free(hudebniNastrojePole[j].nazvyTonu);
+            }
+            free(hudebniNastrojePole);
+            hudebniNastrojePole = NULL;
+            return 1;
+        }
     }
     return 0;
 }
@@ -97,12 +113,33 @@ void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet)
         return;
     }
     rewind(seznamNastroju);
-    fscanf(seznamNastroju, "%i\n", pocet);
+    if (fscanf(seznamNastroju, "%i\n", pocet) != 1 || *pocet <= 0)
+    {
+        *nazvy = NULL;
+        *pocet = 0;
+        fclose(seznamNastroju);
+        return;
+    }
     *nazvy = malloc(*pocet * sizeof(char *));
+    if (*nazvy == NULL)
+    {
+        *pocet = 0;
+        fclose(seznamNastroju);
+        return;
+    }
     for (int i = 0; i < *pocet; i++)
     {
         (*nazvy)[i] = malloc(MAXIMALNI_DELKA_SEZNAMU_NASTROJU);
-        fscanf(seznamNastroju, "%19s\n", (*nazvy)[i]);
+        if ((*nazvy)[i] == NULL || fscanf(seznamNastroju, "%19s\n", (*nazvy)[i]) != 1)
+        {
+            for (int j = 0; j <= i; j++)
+                free((*nazvy)[j]);
+            free(*nazvy);
+            *nazvy = NULL;
+            *pocet = 0;
+            fclose(seznamNastroju);
+            return;
+        }
     }
     fclose(seznamNastroju);
 }
@@ -112,16 +149,16 @@ void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet)
  * nastaveni konkretniho nastroje
  * 
 */
-void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
+int setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
 {
-    FILE *souborNastroje = fopen(nazevSouboru, "r+");
+    FILE *souborNastroje = fopen(nazevSouboru, "r");
     if (souborNastroje == NULL)
     {
         nastroj->pocetTonu = 0;
         nastroj->poleTonu = NULL;
         nastroj->nazvyTonu = NULL;
         nastroj->nazev[0] = '\0';
-        return;
+        return 0;
     }
     rewind(souborNastroje);
     int pocetTonu;
@@ -132,7 +169,7 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
         nastroj->nazvyTonu = NULL;
         nastroj->nazev[0] = '\0';
         fclose(souborNastroje);
-        return;
+        return 0;
     }
     nastroj->pocetTonu = pocetTonu;
     nastroj->poleTonu = malloc(sizeof(int) * pocetTonu);
@@ -142,7 +179,7 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
         nastroj->pocetTonu = 0;
         nastroj->nazvyTonu = NULL;
         nastroj->nazev[0] = '\0';
-        return;
+        return 0;
     }
     for (int i = 0; i < nastroj->pocetTonu; i++)
     {
@@ -154,7 +191,7 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
             nastroj->nazvyTonu = NULL;
             nastroj->nazev[0] = '\0';
             fclose(souborNastroje);
-            return;
+            return 0;
         }
     }
     nastroj->nazvyTonu = malloc(sizeof(char *) * nastroj->pocetTonu);
@@ -165,7 +202,7 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
         nastroj->poleTonu = NULL;
         nastroj->nazev[0] = '\0';
         fclose(souborNastroje);
-        return;
+        return 0;
     }
     for (int i = 0; i < nastroj->pocetTonu; i++)
     {
@@ -183,7 +220,7 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
             nastroj->nazvyTonu = NULL;
             nastroj->nazev[0] = '\0';
             fclose(souborNastroje);
-            return;
+            return 0;
         }
     }
     if (fscanf(souborNastroje, "%49s\n", nastroj->nazev) != 1)
@@ -197,10 +234,11 @@ void setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
         nastroj->nazvyTonu = NULL;
         nastroj->nazev[0] = '\0';
         fclose(souborNastroje);
-        return;
+        return 0;
     }
     odstranitPodtrzitkaZNastroje(nastroj);
     fclose(souborNastroje);
+    return 1;
 }
 
 void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj) {

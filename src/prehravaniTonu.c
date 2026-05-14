@@ -28,9 +28,16 @@ void PrehravaniTonuMain(void)
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VPLAY + 1);
     }
-    if (hudebniNastrojePole == NULL || soubory_pocetSouboru == 0)
+    if (hudebniNastrojePole == NULL || soubory_pocetSouboru <= 0)
     {
         printf("Nebyly zjištěny zádné nástroje, zkuste Nastavení\n");
+        sleep(2);
+        Pa_Terminate();
+        return;
+    }
+    if (hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu <= 0 || hudebniNastrojePole[soubory_aktualniNastroj].poleTonu == NULL)
+    {
+        printf("Nebyly zjištěny platné nástroje, zkuste Nastavení\n");
         sleep(2);
         Pa_Terminate();
         return;
