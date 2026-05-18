@@ -58,6 +58,9 @@ struct dataProStreamPrehravani
     double faze;
 };
 
+#define VELIKOST_CHYBOVE_MEZIPAMETI 100
+extern char log_chyb[VELIKOST_CHYBOVE_MEZIPAMETI];
+
 void praceSParametrem(char *parametry);
 
 PaStream ** nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj);

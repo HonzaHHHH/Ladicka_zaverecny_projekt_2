@@ -76,7 +76,7 @@ int main(int pocetArgumentu, char **argumenty)
 
 
     // SETUP hudebnich nástrojů
-    setupHudebniNastroje();
+    //setupHudebniNastroje();
 
 
     // -----------------------------------------------------------------

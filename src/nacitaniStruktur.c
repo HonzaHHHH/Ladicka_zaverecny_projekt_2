@@ -17,27 +17,31 @@ Struktura souboru pro ukladani jednotlivych souboru
 #include <stdlib.h>
 #include <nacitaniStruktur.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 
-#define MAXIMALNI_DELKA_SEZNAMU_NASTROJU 20
+#define MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU 20
+#define MAXIMALNI_DELKA_NAZVU_TONU 20
+#define MAXIMALNI_DELKA_FREKVENCE_V_CHARECH 5
+#define MAXIMALNI_DELKA_POCTU_TONU_V_CHARECH 4  // počítám i s varhany
+#define MAXIMALNI_POCET_TONU 300
+#define MAXIMALNI_DELKA_NAZVU_NASTROJE 50
 
-struct hudebniNastroj * hudebniNastrojePole = NULL;
-char ** soubory_nazvySouboru;
-int soubory_pocetSouboru;
-int soubory_aktualniNastroj = 0;
+struct hudebniNastroj *poleHudebnichNastroju;
+int pocetHudebnichNastroju;
+int aktualniHudebniNastroj;
+
 
 struct hudebniNastroj gitara;
-void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj);
-void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet);
+
 void setupKytara(void);
-short setupHudebniNastroje(void);
-int setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru);
 
 
 // --------------------------------------------------------------------
 
 void setupKytara(void)
 {
+    strcpy(gitara.nazev, "Kytara 6 strunná");
     gitara.pocetTonu = 6;
     gitara.poleTonu = malloc(sizeof(int) * gitara.pocetTonu);
     gitara.poleTonu[0] = 82;
@@ -46,7 +50,7 @@ void setupKytara(void)
     gitara.poleTonu[3] = 196;
     gitara.poleTonu[4] = 247;
     gitara.poleTonu[5] = 330;
-    strcpy(gitara.nazev, "Kytara 6 strunná");
+    
     gitara.nazvyTonu = malloc(sizeof(char *) * gitara.pocetTonu);
     for (int i = 0; i < gitara.pocetTonu; i++)
     {
@@ -60,187 +64,82 @@ void setupKytara(void)
     strcpy(gitara.nazvyTonu[5], "Struna E4");
 }
 
-/**
- * nastaví vsechny hudební nástroje
- */
-short setupHudebniNastroje() {
-    tvorbaPoleUlozenychNastroju(&soubory_nazvySouboru, &soubory_pocetSouboru); // ziska názvy souborů
-    if (soubory_nazvySouboru == NULL || soubory_pocetSouboru <= 0)
-    {
-        return 1;
-    }
-    hudebniNastrojePole = malloc(soubory_pocetSouboru * sizeof(struct hudebniNastroj)); // alokuje misto pro soubory
-    if (hudebniNastrojePole == NULL)
-    {
-        return 1;
-    }
-    for (int i = 0; i < soubory_pocetSouboru; i++)
-    {
-        if (!setupHudebniNastroj(&hudebniNastrojePole[i], soubory_nazvySouboru[i]))
-        {
-            for (int j = 0; j < i; j++)
-            {
-                free(hudebniNastrojePole[j].poleTonu);
-                for (int k = 0; k < hudebniNastrojePole[j].pocetTonu; k++)
-                    free(hudebniNastrojePole[j].nazvyTonu[k]);
-                free(hudebniNastrojePole[j].nazvyTonu);
-            }
-            free(hudebniNastrojePole);
-            hudebniNastrojePole = NULL;
-            return 1;
-        }
-    }
-    return 0;
-}
-
-
-/**
- * uvolní paměť
- */
-short konecHudebnichNastroju(void)
+void nacistJmenaSouboru(char ***ukazatel_na_soubory, int *pocetSouboru)
 {
-    
-
-}
-
-void tvorbaPoleUlozenychNastroju(char ***nazvy, int *pocet)
-{ // souor seznam nastroju bude obsahovat pocet hudebnich nastroju a nazvy jednotlivych souboru s daty nastroje
-    FILE *seznamNastroju = fopen("seznamNastroju.lad", "r");
-    if (seznamNastroju == NULL)
+    FILE *souborSNazvy = fopen("nastroje.lad", "r+");
+    if (souborSNazvy == NULL)
     {
-        *nazvy = NULL;
-        *pocet = 0;
+        // neco na logy to bude chtit
         return;
     }
-    rewind(seznamNastroju);
-    if (fscanf(seznamNastroju, "%i\n", pocet) != 1 || *pocet <= 0)
+    rewind(souborSNazvy);
+    short kontrola_poctu = fscanf(souborSNazvy, "%i;", pocetSouboru);
+    if (kontrola_poctu != 1)
     {
-        *nazvy = NULL;
-        *pocet = 0;
-        fclose(seznamNastroju);
-        return;
+        *pocetSouboru = 0;
+        *ukazatel_na_soubory = NULL;
     }
-    *nazvy = malloc(*pocet * sizeof(char *));
-    if (*nazvy == NULL)
+    **ukazatel_na_soubory = malloc(MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU * *pocetSouboru);
+    char docasny_uloziste_pro_Jmena[MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU *  (*pocetSouboru)];
+    fgets(docasny_uloziste_pro_Jmena, MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU * (*pocetSouboru), souborSNazvy);
+    for (int index_znaku = 0, index_souboru = 0; index_znaku < sizeof(docasny_uloziste_pro_Jmena); index_znaku++)
     {
-        *pocet = 0;
-        fclose(seznamNastroju);
-        return;
-    }
-    for (int i = 0; i < *pocet; i++)
-    {
-        (*nazvy)[i] = malloc(MAXIMALNI_DELKA_SEZNAMU_NASTROJU);
-        if ((*nazvy)[i] == NULL || fscanf(seznamNastroju, "%19s\n", (*nazvy)[i]) != 1)
+        if (docasny_uloziste_pro_Jmena[index_znaku] == ';')
         {
-            for (int j = 0; j <= i; j++)
-                free((*nazvy)[j]);
-            free(*nazvy);
-            *nazvy = NULL;
-            *pocet = 0;
-            fclose(seznamNastroju);
-            return;
+            index_souboru++;
+            continue;
         }
+        *ukazatel_na_soubory[index_souboru][index_znaku] = docasny_uloziste_pro_Jmena[index_znaku];
     }
-    fclose(seznamNastroju);
+    fclose(souborSNazvy);
+    return;
 }
 
-
-/**
- * nastaveni konkretniho nastroje
- * 
-*/
-int setupHudebniNastroj(struct hudebniNastroj *nastroj, char *nazevSouboru)
+void nacistNastrojeZeSouboru(struct hudebniNastroj * __pole_nastroju, char ** __pole_nazvu_souboru, int __pocet_nastroju)
 {
-    FILE *souborNastroje = fopen(nazevSouboru, "r");
-    if (souborNastroje == NULL)
+    int _aktualni_index_vyrovanvaci_pameti = 0;
+    for (int index_aktualniho_souboru = 0; index_aktualniho_souboru < __pocet_nastroju; index_aktualniho_souboru++)
     {
-        nastroj->pocetTonu = 0;
-        nastroj->poleTonu = NULL;
-        nastroj->nazvyTonu = NULL;
-        nastroj->nazev[0] = '\0';
-        return 0;
-    }
-    rewind(souborNastroje);
-    int pocetTonu;
-    if (fscanf(souborNastroje, "%i\n", &pocetTonu) != 1 || pocetTonu <= 0)
-    {
-        nastroj->pocetTonu = 0;
-        nastroj->poleTonu = NULL;
-        nastroj->nazvyTonu = NULL;
-        nastroj->nazev[0] = '\0';
-        fclose(souborNastroje);
-        return 0;
-    }
-    nastroj->pocetTonu = pocetTonu;
-    nastroj->poleTonu = malloc(sizeof(int) * pocetTonu);
-    if (nastroj->poleTonu == NULL)
-    {
-        fclose(souborNastroje);
-        nastroj->pocetTonu = 0;
-        nastroj->nazvyTonu = NULL;
-        nastroj->nazev[0] = '\0';
-        return 0;
-    }
-    for (int i = 0; i < nastroj->pocetTonu; i++)
-    {
-        if (fscanf(souborNastroje, "%i\n", &nastroj->poleTonu[i]) != 1)
+        FILE * soubor_s_aktual_nastrojem = fopen(__pole_nazvu_souboru[index_aktualniho_souboru], "r");
+        if (soubor_s_aktual_nastrojem == NULL)
         {
-            free(nastroj->poleTonu);
-            nastroj->pocetTonu = 0;
-            nastroj->poleTonu = NULL;
-            nastroj->nazvyTonu = NULL;
-            nastroj->nazev[0] = '\0';
-            fclose(souborNastroje);
-            return 0;
+            memset(__pole_nastroju, 0, sizeof(struct hudebniNastroj));
+            continue;
         }
-    }
-    nastroj->nazvyTonu = malloc(sizeof(char *) * nastroj->pocetTonu);
-    if (nastroj->nazvyTonu == NULL)
-    {
-        free(nastroj->poleTonu);
-        nastroj->pocetTonu = 0;
-        nastroj->poleTonu = NULL;
-        nastroj->nazev[0] = '\0';
-        fclose(souborNastroje);
-        return 0;
-    }
-    for (int i = 0; i < nastroj->pocetTonu; i++)
-    {
-        nastroj->nazvyTonu[i] = malloc(50);
-        if (nastroj->nazvyTonu[i] == NULL || fscanf(souborNastroje, "%49s\n", nastroj->nazvyTonu[i]) != 1)
+        char _vyrovnavaci_pamet[MAXIMALNI_DELKA_NAZVU_NASTROJE + MAXIMALNI_POCET_TONU * MAXIMALNI_DELKA_FREKVENCE_V_CHARECH + MAXIMALNI_POCET_TONU * MAXIMALNI_DELKA_NAZVU_TONU + MAXIMALNI_DELKA_POCTU_TONU_V_CHARECH];
+        memset(_vyrovnavaci_pamet, 0, sizeof(_vyrovnavaci_pamet));
+        fgets(_vyrovnavaci_pamet, sizeof(_vyrovnavaci_pamet), soubor_s_aktual_nastrojem);
+        for (int _polozka_ve_strukture = 0, _pozice_stringu = 0; _aktualni_index_vyrovanvaci_pameti < sizeof(_vyrovnavaci_pamet); _aktualni_index_vyrovanvaci_pameti++)
         {
-            for (int j = 0; j <= i; j++)
+            if (_vyrovnavaci_pamet[_aktualni_index_vyrovanvaci_pameti] == ';')
             {
-                free(nastroj->nazvyTonu[j]);
+                _polozka_ve_strukture++;
+                _pozice_stringu = 0;
+                continue;
             }
-            free(nastroj->nazvyTonu);
-            free(nastroj->poleTonu);
-            nastroj->pocetTonu = 0;
-            nastroj->poleTonu = NULL;
-            nastroj->nazvyTonu = NULL;
-            nastroj->nazev[0] = '\0';
-            fclose(souborNastroje);
-            return 0;
+            switch (_polozka_ve_strukture)
+            {
+                case 0:
+                    __pole_nastroju[index_aktualniho_souboru].nazev[_pozice_stringu] = _vyrovnavaci_pamet[_aktualni_index_vyrovanvaci_pameti];
+                    break;
+                case 1:
+                    fscanf(soubor_s_aktual_nastrojem, "%i", &__pole_nastroju[index_aktualniho_souboru].pocetTonu);
+                break;
+            }
         }
     }
-    if (fscanf(souborNastroje, "%49s\n", nastroj->nazev) != 1)
-    {
-        for (int i = 0; i < nastroj->pocetTonu; i++)
-            free(nastroj->nazvyTonu[i]);
-        free(nastroj->nazvyTonu);
-        free(nastroj->poleTonu);
-        nastroj->pocetTonu = 0;
-        nastroj->poleTonu = NULL;
-        nastroj->nazvyTonu = NULL;
-        nastroj->nazev[0] = '\0';
-        fclose(souborNastroje);
-        return 0;
-    }
-    odstranitPodtrzitkaZNastroje(nastroj);
-    fclose(souborNastroje);
-    return 1;
 }
 
-void odstranitPodtrzitkaZNastroje(struct hudebniNastroj *nastroj) {
+void nacitaniStrukturMain(void)
+{
+    // ziskame odkud cerpat informace
+    char **nazvySouboru = NULL;
+    int pocetNazvuSouboru = 0;
+    nacistJmenaSouboru(&nazvySouboru, &pocetNazvuSouboru);
 
+    // jdeme cerpat informace
+    struct hudebniNastroj * _hudebni_nastroje_pole;
+    int _pocet_Nastroju = pocetNazvuSouboru;
+    _hudebni_nastroje_pole = malloc(sizeof(struct hudebniNastroj) * _pocet_Nastroju);
+    nacistNastrojeZeSouboru(_hudebni_nastroje_pole, nazvySouboru, _pocet_Nastroju);
 }
