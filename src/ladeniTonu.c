@@ -36,36 +36,36 @@ void ladeniTonuMain()
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VLADENI + 1);
     }
-    if (hudebniNastrojePole == NULL || soubory_pocetSouboru == 0)
+    if (poleHudebnichNastroju[aktualniHudebniNastroj].poleTonu == 0)
     {
         printf("Nebyly zjištěny zádné nástroje, zkuste Nastavení\n");
         sleep(2);
         Pa_Terminate();
         return;
     }
-    PaStream **poleStreamu = nastaveniPortAudioStreamuLadeni(hudebniNastrojePole[soubory_aktualniNastroj]);
+    PaStream **poleStreamu = nastaveniPortAudioStreamuLadeni(poleHudebnichNastroju[aktualniHudebniNastroj]);
     short cisloVNabidce = 0;
     char voliciZnak = 0;
     short konecFunkce = 1;
     while (konecFunkce)
     {
         clearScreen();
-        for (int i = 0; i < hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu; i++)
+        for (int i = 0; i < poleHudebnichNastroju[aktualniHudebniNastroj].pocetTonu; i++)
         {
             if (cisloVNabidce == i)
                 printf("\x1b[32m"
                        "\n%s"
                        "\x1b[0m",
-                       hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
+                       poleHudebnichNastroju[aktualniHudebniNastroj].nazvyTonu[i]);
             else
-                printf("\n%s", hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
+                printf("\n%s", poleHudebnichNastroju[aktualniHudebniNastroj].nazvyTonu[i]);
         }
         voliciZnak = getCharNow();
         switch (voliciZnak)
         {
         case 's':
         case 'S':
-            if (cisloVNabidce < hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu - 1)
+            if (cisloVNabidce < poleHudebnichNastroju[aktualniHudebniNastroj].pocetTonu - 1)
                 cisloVNabidce++;
             break;
         case 'w':
@@ -75,7 +75,7 @@ void ladeniTonuMain()
             break;
         case '\n':
             clearScreen();
-            laditTon(poleStreamu[cisloVNabidce], hudebniNastrojePole[soubory_aktualniNastroj].poleTonu[cisloVNabidce]);
+            laditTon(poleStreamu[cisloVNabidce], poleHudebnichNastroju[aktualniHudebniNastroj].poleTonu[cisloVNabidce]);
             break;
         case 'q':
         case 'Q':

@@ -11,7 +11,6 @@ struct hudebniNastroj
 
 extern struct hudebniNastroj gitara;
 
-
 extern struct hudebniNastroj *poleHudebnichNastroju;
 extern int pocetHudebnichNastroju;
 extern int aktualniHudebniNastroj;

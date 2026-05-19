@@ -28,21 +28,14 @@ void PrehravaniTonuMain(void)
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VPLAY + 1);
     }
-    if (hudebniNastrojePole == NULL || soubory_pocetSouboru <= 0)
+    if (poleHudebnichNastroju[aktualniHudebniNastroj].pocetTonu == 0)
     {
-        printf("Nebyly zjištěny zádné nástroje, zkuste Nastavení\n");
+        printf("Objevil se problem pri otevirani souboru, chyba č. 1532\n");
         sleep(2);
         Pa_Terminate();
         return;
     }
-    if (hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu <= 0 || hudebniNastrojePole[soubory_aktualniNastroj].poleTonu == NULL)
-    {
-        printf("Nebyly zjištěny platné nástroje, zkuste Nastavení\n");
-        sleep(2);
-        Pa_Terminate();
-        return;
-    }
-    PaStream **poleStreamu = nastaveniPortAudioStreamuPrehravani(hudebniNastrojePole[soubory_aktualniNastroj]);
+    PaStream **poleStreamu = nastaveniPortAudioStreamuPrehravani(poleHudebnichNastroju[aktualniHudebniNastroj]);
     if (poleStreamu == NULL)
     {
         printf("Chyba v poli streamu\n");
@@ -56,22 +49,22 @@ void PrehravaniTonuMain(void)
     while (konecFunkce)
     {
         clearScreen();
-        for (int i = 0; i < hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu; i++)
+        for (int i = 0; i < poleHudebnichNastroju[aktualniHudebniNastroj].pocetTonu; i++)
         {
             if (cisloVNabidce == i)
                 printf("\x1b[32m"
                        "\n%s"
                        "\x1b[0m",
-                       hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
+                       poleHudebnichNastroju[aktualniHudebniNastroj].nazvyTonu[i]);
             else
-                printf("\n%s", hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
+                printf("\n%s", poleHudebnichNastroju[aktualniHudebniNastroj].nazvyTonu[i]);
         }
         voliciZnak = getCharNow();
         switch (voliciZnak)
         {
         case 's':
         case 'S':
-            if (cisloVNabidce < hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu - 1)
+            if (cisloVNabidce < poleHudebnichNastroju[aktualniHudebniNastroj].pocetTonu - 1)
                 cisloVNabidce++;
             break;
         case 'w':
@@ -81,15 +74,15 @@ void PrehravaniTonuMain(void)
             break;
         case '\n':
         clearScreen();
-            for (int i = 0; i < hudebniNastrojePole[soubory_aktualniNastroj].pocetTonu; i++)
+            for (int i = 0; i < poleHudebnichNastroju[aktualniHudebniNastroj].pocetTonu; i++)
             {
                 if (cisloVNabidce == i)
                     printf("\x1b[32m"
                            "\n### %s ### Nyní hraje ###"
                            "\x1b[0m",
-                           hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
+                           poleHudebnichNastroju[aktualniHudebniNastroj].nazvyTonu[i]);
                 else
-                    printf("\n%s", hudebniNastrojePole[soubory_aktualniNastroj].nazvyTonu[i]);
+                    printf("\n%s", poleHudebnichNastroju[aktualniHudebniNastroj].nazvyTonu[i]);
             }
             hratTon(poleStreamu[cisloVNabidce]);
             break;
