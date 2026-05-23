@@ -28,6 +28,13 @@ void PrehravaniTonuMain(void)
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VPLAY + 1);
     }
+    if (&poleHudebnichNastroju[aktualniHudebniNastroj] == NULL)
+    {
+        printf("Nepodařilo se otevřít nástroj");
+        sleep(1);
+        Pa_Terminate();
+        return;
+    }
     if (poleHudebnichNastroju[aktualniHudebniNastroj].pocetTonu == 0)
     {
         printf("Objevil se problem pri otevirani souboru, chyba č. 1532\n");

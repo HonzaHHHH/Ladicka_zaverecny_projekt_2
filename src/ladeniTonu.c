@@ -36,6 +36,13 @@ void ladeniTonuMain()
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VLADENI + 1);
     }
+    if (&poleHudebnichNastroju[aktualniHudebniNastroj] == NULL)
+    {
+        printf("Nepodařilo se otevřít nástroj");
+        sleep(1);
+        Pa_Terminate();
+        return;
+    }
     if (poleHudebnichNastroju[aktualniHudebniNastroj].poleTonu == 0)
     {
         printf("Nebyly zjištěny zádné nástroje, zkuste Nastavení\n");
