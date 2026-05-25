@@ -29,6 +29,10 @@ Struktura souboru pro ukladani jednotlivych souboru
 
 #define DELKA_FORMÁTOVÉ_SPECIFIKACE 7
 
+// tyto 2 makra mi pomohla gemini s vytvorenim a implementaci, protoze bych to sam asi nezvladl
+#define NA_STRING_HELPER(x) #x
+#define NA_STRING(x) NA_STRING_HELPER(x)
+
 
 struct hudebniNastroj *poleHudebnichNastroju;
 int pocetHudebnichNastroju;
@@ -124,24 +128,18 @@ void nacistNastrojeZeSouboru()
             continue;
         }
         rewind(soubor_s_aktual_nastrojem);
-        int _pocet_frekvenci = 0;
-        short kontrola = fscanf(soubor_s_aktual_nastrojem, "%i", &_pocet_frekvenci);
-        if (kontrola != 1 || _pocet_frekvenci == 0)
+        short _kontrola_nacteni_poctu_frekvenci = fscanf(soubor_s_aktual_nastrojem, "%i;", &poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu);
+        if (_kontrola_nacteni_poctu_frekvenci != 1 || poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu < 1)
         {
-            // řízení chyby
+            poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu = 0;
+            continue;
         }
-        rewind(soubor_s_aktual_nastrojem);
-        char _formátová_specifikace[2 + DELKA_FORMÁTOVÉ_SPECIFIKACE + _pocet_frekvenci * DELKA_FORMÁTOVÉ_SPECIFIKACE * 2 + 1];
-        sprintf(_formátová_specifikace, "%%i;%%%i[^;];", MAXIMALNI_DELKA_NAZVU_NASTROJE);
-        int _index_zapisu_do_formátové_specifikace = strlen(_formátová_specifikace);
-        for (int _index_plneni_formatove_specifikace = 0; _index_plneni_formatove_specifikace < _pocet_frekvenci; _index_plneni_formatove_specifikace++)
-        {
-            sprintf(&_formátová_specifikace[strlen(_formátová_specifikace)], "%%i;");
-        }
-        for (int _index_plneni_formatove_specifikace = 0; _index_plneni_formatove_specifikace < _pocet_frekvenci; _index_plneni_formatove_specifikace++)
-        {
-            sprintf(&_formátová_specifikace[strlen(_formátová_specifikace)], "%%%i[^;];", MAXIMALNI_DELKA_NAZVU_NASTROJE);
-        }
+        char _docasne_uloziste_pro_nazev[MAXIMALNI_DELKA_NAZVU_NASTROJE + 1];
+        memset(_docasne_uloziste_pro_nazev, 0, sizeof(_docasne_uloziste_pro_nazev));
+        fscanf(soubor_s_aktual_nastrojem, "%" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", _docasne_uloziste_pro_nazev);
+        strcpy(poleHudebnichNastroju[index_aktualniho_souboru].nazev, _docasne_uloziste_pro_nazev);
+         // for (int _index_nacitani_frekvenci = 0; _index_nacitani_frekvenci)
+        // DODELAT ALOKACI, DODELAT NAZVY TONU, DODELAT TAM NAHORE TY ZMRDY FGETS
         fclose(soubor_s_aktual_nastrojem);
     }
 }
