@@ -1,5 +1,17 @@
 /*
-    Tato část kódu slouží k načítání struktur hudebních nástrojů ze souborů
+    Tato část kódu složí k načítání struktur hudebních nástrojů ze souborů
+    !!!! POZOR !!!!!
+    Tato část obsahuje velké zbytky po prvním testování, kód je psán velmi jednoduše, abych se mohl soustředit na hlavní problematiku souboru a ne na blbý struktury
+*/
+
+/*
+
+Struktura souboru pro ukladani jednotlivych souboru
+
+
+
+
+
 */
 
 #include <stdlib.h>
@@ -11,7 +23,7 @@
 #define MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU 20
 #define MAXIMALNI_DELKA_NAZVU_TONU 20
 #define MAXIMALNI_DELKA_FREKVENCE_V_CHARECH 5
-#define MAXIMALNI_DELKA_POCTU_TONU_V_CHARECH 4
+#define MAXIMALNI_DELKA_POCTU_TONU_V_CHARECH 4  // počítám i s varhany
 #define MAXIMALNI_POCET_TONU 300
 #define MAXIMALNI_DELKA_NAZVU_NASTROJE 50
 
@@ -24,310 +36,100 @@ struct hudebniNastroj gitara;
 
 void setupKytara(void);
 
+
 // --------------------------------------------------------------------
 
 void setupKytara(void)
 {
-    strcpy(gitara.nazev, "Kytara 6 strunna");
-
+    strcpy(gitara.nazev, "Kytara 6 strunná");
     gitara.pocetTonu = 6;
-
     gitara.poleTonu = malloc(sizeof(int) * gitara.pocetTonu);
-
-    if (gitara.poleTonu == NULL)
-    {
-        return;
-    }
-
     gitara.poleTonu[0] = 82;
     gitara.poleTonu[1] = 110;
     gitara.poleTonu[2] = 147;
     gitara.poleTonu[3] = 196;
     gitara.poleTonu[4] = 247;
     gitara.poleTonu[5] = 330;
-
+    
     gitara.nazvyTonu = malloc(sizeof(char *) * gitara.pocetTonu);
-
-    if (gitara.nazvyTonu == NULL)
-    {
-        free(gitara.poleTonu);
-        return;
-    }
-
     for (int i = 0; i < gitara.pocetTonu; i++)
     {
-        gitara.nazvyTonu[i] = malloc(sizeof(char) * MAXIMALNI_DELKA_NAZVU_TONU);
-
-        if (gitara.nazvyTonu[i] == NULL)
-        {
-            return;
-        }
-
-        memset(gitara.nazvyTonu[i], '\0', MAXIMALNI_DELKA_NAZVU_TONU);
+        gitara.nazvyTonu[i] = malloc(sizeof(char) * 10);
     }
-
-    strncpy(gitara.nazvyTonu[0], "Struna E2", MAXIMALNI_DELKA_NAZVU_TONU - 1);
-    strncpy(gitara.nazvyTonu[1], "Struna A2", MAXIMALNI_DELKA_NAZVU_TONU - 1);
-    strncpy(gitara.nazvyTonu[2], "Struna D3", MAXIMALNI_DELKA_NAZVU_TONU - 1);
-    strncpy(gitara.nazvyTonu[3], "Struna G3", MAXIMALNI_DELKA_NAZVU_TONU - 1);
-    strncpy(gitara.nazvyTonu[4], "Struna B3", MAXIMALNI_DELKA_NAZVU_TONU - 1);
-    strncpy(gitara.nazvyTonu[5], "Struna E4", MAXIMALNI_DELKA_NAZVU_TONU - 1);
+    strcpy(gitara.nazvyTonu[0], "Struna E2");
+    strcpy(gitara.nazvyTonu[1], "Struna A2");
+    strcpy(gitara.nazvyTonu[2], "Struna D3");
+    strcpy(gitara.nazvyTonu[3], "Struna G3");
+    strcpy(gitara.nazvyTonu[4], "Struna B3");
+    strcpy(gitara.nazvyTonu[5], "Struna E4");
 }
-
-// --------------------------------------------------------------------
 
 void nacistJmenaSouboru(void)
 {
-    FILE *souborSNazvy = fopen("nastroje.lad", "r");
-
+    FILE *souborSNazvy = fopen("nastroje.lad", "r+");
     if (souborSNazvy == NULL)
     {
+        // neco na logy to bude chtit
         return;
     }
-
     rewind(souborSNazvy);
-
-    short kontrola_poctu = fscanf(souborSNazvy, "%i;", &pocetHudebnichNastroju);
-
+    short kontrola_poctu = fscanf(souborSNazvy, "%i;", &pocetHudebnichNastroju); // TADY TAKY RADSI FGETS
     if (kontrola_poctu != 1)
     {
         pocetHudebnichNastroju = 0;
         nazvySouboru = NULL;
-
-        fclose(souborSNazvy);
-
         return;
     }
-
     nazvySouboru = malloc(sizeof(char *) * pocetHudebnichNastroju);
-
-    if (nazvySouboru == NULL)
-    {
-        fclose(souborSNazvy);
-        return;
-    }
-
     for (int indexStringu = 0; indexStringu < pocetHudebnichNastroju; indexStringu++)
     {
         nazvySouboru[indexStringu] = malloc(sizeof(char) * MAXIMALNI_DELKA_NAZVU_NASTROJE);
-
-        if (nazvySouboru[indexStringu] == NULL)
-        {
-            fclose(souborSNazvy);
-            return;
-        }
-
-        memset(
-            nazvySouboru[indexStringu],
-            '\0',
-            MAXIMALNI_DELKA_NAZVU_NASTROJE
-        );
     }
-
-    char docasneUloziste[
-        (MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU + 2)
-        * pocetHudebnichNastroju
-        + 2
-    ];
-
-    memset(docasneUloziste, '\0', sizeof(docasneUloziste));
-
-    fgets(
-        docasneUloziste,
-        sizeof(docasneUloziste),
-        souborSNazvy
-    );
-
-    int delka = strlen(docasneUloziste);
-
-    for (
-        int indexZnaku = 0,
-            indexSouboru = 0,
-            indexZnakuVNazvu = 0;
-
-        indexZnaku < delka;
-
-        indexZnaku++
-    )
+    for (int _nazev_souboru_index_pro_nulovani = 0; _nazev_souboru_index_pro_nulovani < pocetHudebnichNastroju; _nazev_souboru_index_pro_nulovani++)
     {
-        if (docasneUloziste[indexZnaku] == ';')
-        {
-            if (indexSouboru < pocetHudebnichNastroju)
-            {
-                nazvySouboru[indexSouboru][indexZnakuVNazvu] = '\0';
-            }
-
-            indexSouboru++;
-            indexZnakuVNazvu = 0;
-
-            continue;
-        }
-
-        if (docasneUloziste[indexZnaku] == '\n')
-        {
-            continue;
-        }
-
-        if (
-            indexSouboru < pocetHudebnichNastroju &&
-            indexZnakuVNazvu < MAXIMALNI_DELKA_NAZVU_NASTROJE - 1
-        )
-        {
-            nazvySouboru[indexSouboru][indexZnakuVNazvu] =
-                docasneUloziste[indexZnaku];
-
-            indexZnakuVNazvu++;
-        }
+        memset(nazvySouboru[_nazev_souboru_index_pro_nulovani], '\0', sizeof(char) * MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU);
     }
-
+    char docasny_uloziste_pro_Jmena[MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU *  (pocetHudebnichNastroju)];
+    fgets(docasny_uloziste_pro_Jmena, MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU * (pocetHudebnichNastroju), souborSNazvy);
+    for (int index_znaku = 0, index_souboru = 0, index_zacatku_nazvu = 0; index_znaku < strlen(docasny_uloziste_pro_Jmena); index_znaku++)
+    {
+        if (docasny_uloziste_pro_Jmena[index_znaku] == ';')
+        {
+            index_souboru++;
+            index_zacatku_nazvu = 0;
+            continue;
+        }
+        nazvySouboru[index_souboru][index_zacatku_nazvu] = docasny_uloziste_pro_Jmena[index_znaku];
+        index_zacatku_nazvu++;
+    }
     fclose(souborSNazvy);
+    return;
 }
 
-// --------------------------------------------------------------------
-
-void nacistNastrojeZeSouboru(void)
+void nacistNastrojeZeSouboru()
 {
-    poleHudebnichNastroju = malloc(
-        sizeof(struct hudebniNastroj)
-        * pocetHudebnichNastroju
-    );
-
+    poleHudebnichNastroju = malloc(sizeof(struct hudebniNastroj) * pocetHudebnichNastroju);
     if (poleHudebnichNastroju == NULL)
     {
         return;
     }
-
-    memset(
-        poleHudebnichNastroju,
-        0,
-        sizeof(struct hudebniNastroj)
-        * pocetHudebnichNastroju
-    );
-
-    for (
-        int indexAktualnihoSouboru = 0;
-
-        indexAktualnihoSouboru < pocetHudebnichNastroju;
-
-        indexAktualnihoSouboru++
-    )
+    memset(poleHudebnichNastroju, 0, sizeof(struct hudebniNastroj) * pocetHudebnichNastroju);
+    for (int index_aktualniho_souboru = 0; index_aktualniho_souboru < pocetHudebnichNastroju; index_aktualniho_souboru++)
     {
-        FILE *souborSNastrojem = fopen(
-            nazvySouboru[indexAktualnihoSouboru],
-            "r"
-        );
-
-        if (souborSNastrojem == NULL)
+        FILE * soubor_s_aktual_nastrojem = fopen(nazvySouboru[index_aktualniho_souboru], "r");
+        if (soubor_s_aktual_nastrojem == NULL)
         {
             continue;
         }
-
-        char vyrovnavaciPamet[
-            MAXIMALNI_DELKA_NAZVU_NASTROJE
-            + MAXIMALNI_POCET_TONU
-            * MAXIMALNI_DELKA_FREKVENCE_V_CHARECH
-            + MAXIMALNI_POCET_TONU
-            * MAXIMALNI_DELKA_NAZVU_TONU
-            + MAXIMALNI_DELKA_POCTU_TONU_V_CHARECH
-            + 100
-        ];
-
-        memset(
-            vyrovnavaciPamet,
-            '\0',
-            sizeof(vyrovnavaciPamet)
-        );
-
-        fgets(
-            vyrovnavaciPamet,
-            sizeof(vyrovnavaciPamet),
-            souborSNastrojem
-        );
-
-        int delka = strlen(vyrovnavaciPamet);
-
-        int polozkaVeStrukture = 0;
-        int poziceStringu = 0;
-
-        char docasneCislo[20];
-
-        memset(docasneCislo, '\0', sizeof(docasneCislo));
-
-        for (
-            int indexPameti = 0;
-
-            indexPameti < delka;
-
-            indexPameti++
-        )
-        {
-            if (vyrovnavaciPamet[indexPameti] == ';')
-            {
-                if (polozkaVeStrukture == 1)
-                {
-                    poleHudebnichNastroju[indexAktualnihoSouboru].pocetTonu =
-                        atoi(docasneCislo);
-                }
-
-                polozkaVeStrukture++;
-                poziceStringu = 0;
-
-                memset(docasneCislo, '\0', sizeof(docasneCislo));
-
-                continue;
-            }
-
-            if (vyrovnavaciPamet[indexPameti] == '\n')
-            {
-                continue;
-            }
-
-            switch (polozkaVeStrukture)
-            {
-                case 0:
-
-                    if (
-                        poziceStringu
-                        < MAXIMALNI_DELKA_NAZVU_NASTROJE - 1
-                    )
-                    {
-                        poleHudebnichNastroju
-                            [indexAktualnihoSouboru]
-                            .nazev[poziceStringu]
-                            = vyrovnavaciPamet[indexPameti];
-
-                        poziceStringu++;
-
-                        poleHudebnichNastroju
-                            [indexAktualnihoSouboru]
-                            .nazev[poziceStringu]
-                            = '\0';
-                    }
-
-                    break;
-
-                case 1:
-
-                    if (poziceStringu < sizeof(docasneCislo) - 1)
-                    {
-                        docasneCislo[poziceStringu] =
-                            vyrovnavaciPamet[indexPameti];
-
-                        poziceStringu++;
-                    }
-
-                    break;
-            }
-        }
-
-        fclose(souborSNastrojem);
+        
+        fclose(soubor_s_aktual_nastrojem);
     }
 }
 
-// --------------------------------------------------------------------
-
 void nacitaniStrukturMain(void)
 {
+    // ziskame odkud cerpat informace
+
     nacistJmenaSouboru();
     nacistNastrojeZeSouboru();
 }
