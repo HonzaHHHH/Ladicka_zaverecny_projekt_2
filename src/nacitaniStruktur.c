@@ -23,9 +23,12 @@ Struktura souboru pro ukladani jednotlivych souboru
 #define MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU 20
 #define MAXIMALNI_DELKA_NAZVU_TONU 20
 #define MAXIMALNI_DELKA_FREKVENCE_V_CHARECH 5
-#define MAXIMALNI_DELKA_POCTU_TONU_V_CHARECH 4  // počítám i s varhany
-#define MAXIMALNI_POCET_TONU 300
+#define MAXIMALNI_DELKA_POCTU_TONU_V_CHARECH 4 // počítám i s varhany
+#define MAXIMALNI_POCET_TONU 3000
 #define MAXIMALNI_DELKA_NAZVU_NASTROJE 50
+
+#define DELKA_FORMÁTOVÉ_SPECIFIKACE 7
+
 
 struct hudebniNastroj *poleHudebnichNastroju;
 int pocetHudebnichNastroju;
@@ -35,7 +38,6 @@ char **nazvySouboru;
 struct hudebniNastroj gitara;
 
 void setupKytara(void);
-
 
 // --------------------------------------------------------------------
 
@@ -50,7 +52,7 @@ void setupKytara(void)
     gitara.poleTonu[3] = 196;
     gitara.poleTonu[4] = 247;
     gitara.poleTonu[5] = 330;
-    
+
     gitara.nazvyTonu = malloc(sizeof(char *) * gitara.pocetTonu);
     for (int i = 0; i < gitara.pocetTonu; i++)
     {
@@ -89,7 +91,7 @@ void nacistJmenaSouboru(void)
     {
         memset(nazvySouboru[_nazev_souboru_index_pro_nulovani], '\0', sizeof(char) * MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU);
     }
-    char docasny_uloziste_pro_Jmena[MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU *  (pocetHudebnichNastroju)];
+    char docasny_uloziste_pro_Jmena[MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU * (pocetHudebnichNastroju)];
     fgets(docasny_uloziste_pro_Jmena, MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU * (pocetHudebnichNastroju), souborSNazvy);
     for (int index_znaku = 0, index_souboru = 0, index_zacatku_nazvu = 0; index_znaku < strlen(docasny_uloziste_pro_Jmena); index_znaku++)
     {
@@ -116,12 +118,30 @@ void nacistNastrojeZeSouboru()
     memset(poleHudebnichNastroju, 0, sizeof(struct hudebniNastroj) * pocetHudebnichNastroju);
     for (int index_aktualniho_souboru = 0; index_aktualniho_souboru < pocetHudebnichNastroju; index_aktualniho_souboru++)
     {
-        FILE * soubor_s_aktual_nastrojem = fopen(nazvySouboru[index_aktualniho_souboru], "r");
+        FILE *soubor_s_aktual_nastrojem = fopen(nazvySouboru[index_aktualniho_souboru], "r");
         if (soubor_s_aktual_nastrojem == NULL)
         {
             continue;
         }
-        
+        rewind(soubor_s_aktual_nastrojem);
+        int _pocet_frekvenci = 0;
+        short kontrola = fscanf(soubor_s_aktual_nastrojem, "%i", &_pocet_frekvenci);
+        if (kontrola != 1 || _pocet_frekvenci == 0)
+        {
+            // řízení chyby
+        }
+        rewind(soubor_s_aktual_nastrojem);
+        char _formátová_specifikace[2 + DELKA_FORMÁTOVÉ_SPECIFIKACE + _pocet_frekvenci * DELKA_FORMÁTOVÉ_SPECIFIKACE * 2 + 1];
+        sprintf(_formátová_specifikace, "%%i;%%%i[^;];", MAXIMALNI_DELKA_NAZVU_NASTROJE);
+        int _index_zapisu_do_formátové_specifikace = strlen(_formátová_specifikace);
+        for (int _index_plneni_formatove_specifikace = 0; _index_plneni_formatove_specifikace < _pocet_frekvenci; _index_plneni_formatove_specifikace++)
+        {
+            sprintf(&_formátová_specifikace[strlen(_formátová_specifikace)], "%%i;");
+        }
+        for (int _index_plneni_formatove_specifikace = 0; _index_plneni_formatove_specifikace < _pocet_frekvenci; _index_plneni_formatove_specifikace++)
+        {
+            sprintf(&_formátová_specifikace[strlen(_formátová_specifikace)], "%%%i[^;];", MAXIMALNI_DELKA_NAZVU_NASTROJE);
+        }
         fclose(soubor_s_aktual_nastrojem);
     }
 }
