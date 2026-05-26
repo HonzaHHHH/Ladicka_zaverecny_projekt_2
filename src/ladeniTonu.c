@@ -126,7 +126,9 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
         // zjisteni nejvetsi velikosti
         int indexMaxima = 0;
         double amplitudaMaxima = 0;
-        for (int i = 0; i < velikostFFTbufferu / 2; i++)
+        long _min_index = cilovaFrekvence * velikostFFTbufferu / (8 * vzorkovaciFrekvence);
+        long _max_index = 15 * cilovaFrekvence * velikostFFTbufferu / (8 * vzorkovaciFrekvence);
+        for (int i = _min_index; i < _max_index; i++)
         {
             double aktual = sqrt(pow((double)komplexniRovinaVystup[i].r, 2) + pow((double)komplexniRovinaVystup[i].i, 2)); // velikost komplexního čísla
             if (aktual > amplitudaMaxima)
