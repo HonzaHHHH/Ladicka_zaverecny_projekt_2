@@ -74,10 +74,7 @@ int main(int pocetArgumentu, char **argumenty)
 
     setupTerminalFunctions(); // moje knihovna z loňského roku
 
-
-    // SETUP hudebnich nástrojů
-    //setupHudebniNastroje();
-
+    nacitaniStrukturMain();
 
     // -----------------------------------------------------------------
     // První nabídka, opět bez kanonického režimu

@@ -15,6 +15,7 @@ extern struct hudebniNastroj *poleHudebnichNastroju;
 extern int pocetHudebnichNastroju;
 extern int aktualniHudebniNastroj;
 
+void nacitaniStrukturMain(void);
 
 
 void setupKytara(void);

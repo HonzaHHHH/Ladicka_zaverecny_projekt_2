@@ -72,44 +72,31 @@ void setupKytara(void)
 
 void nacistJmenaSouboru(void)
 {
-    FILE *souborSNazvy = fopen("nastroje.lad", "r+");
-    if (souborSNazvy == NULL)
-    {
-        // neco na logy to bude chtit
-        return;
-    }
-    rewind(souborSNazvy);
-    short kontrola_poctu = fscanf(souborSNazvy, "%i;", &pocetHudebnichNastroju); // TADY TAKY RADSI FGETS
-    if (kontrola_poctu != 1)
-    {
+    FILE *souborSNazvy = fopen("nastroje.lad", "r"); // Stačí režim "r"
+    if (souborSNazvy == NULL) return;
+
+    short kontrola_poctu = fscanf(souborSNazvy, "%i;", &pocetHudebnichNastroju);
+    if (kontrola_poctu != 1) {
         pocetHudebnichNastroju = 0;
         nazvySouboru = NULL;
+        fclose(souborSNazvy);
         return;
     }
+
+    // Alokace pole ukazatelů
     nazvySouboru = malloc(sizeof(char *) * pocetHudebnichNastroju);
-    for (int indexStringu = 0; indexStringu < pocetHudebnichNastroju; indexStringu++)
-    {
-        nazvySouboru[indexStringu] = malloc(sizeof(char) * MAXIMALNI_DELKA_NAZVU_NASTROJE);
+    for (int i = 0; i < pocetHudebnichNastroju; i++) {
+        nazvySouboru[i] = malloc(sizeof(char) * MAXIMALNI_DELKA_NAZVU_NASTROJE);
+        memset(nazvySouboru[i], '\0', MAXIMALNI_DELKA_NAZVU_NASTROJE);
     }
-    for (int _nazev_souboru_index_pro_nulovani = 0; _nazev_souboru_index_pro_nulovani < pocetHudebnichNastroju; _nazev_souboru_index_pro_nulovani++)
-    {
-        memset(nazvySouboru[_nazev_souboru_index_pro_nulovani], '\0', sizeof(char) * MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU);
+
+    // === TADY JE TA ZMĚNA: Žádné fgets, žádné ruční sekání znaků ===
+    for (int i = 0; i < pocetHudebnichNastroju; i++) {
+        // Mezera před % přeskočí případné neviditelné bílé znaky (odřádkování, mezery)
+        fscanf(souborSNazvy, " %" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", nazvySouboru[i]);
     }
-    char docasny_uloziste_pro_Jmena[MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU * (pocetHudebnichNastroju)];
-    fgets(docasny_uloziste_pro_Jmena, MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU * (pocetHudebnichNastroju), souborSNazvy);
-    for (int index_znaku = 0, index_souboru = 0, index_zacatku_nazvu = 0; index_znaku < strlen(docasny_uloziste_pro_Jmena); index_znaku++)
-    {
-        if (docasny_uloziste_pro_Jmena[index_znaku] == ';')
-        {
-            index_souboru++;
-            index_zacatku_nazvu = 0;
-            continue;
-        }
-        nazvySouboru[index_souboru][index_zacatku_nazvu] = docasny_uloziste_pro_Jmena[index_znaku];
-        index_zacatku_nazvu++;
-    }
+
     fclose(souborSNazvy);
-    return;
 }
 
 void nacistNastrojeZeSouboru()
@@ -136,10 +123,23 @@ void nacistNastrojeZeSouboru()
         }
         char _docasne_uloziste_pro_nazev[MAXIMALNI_DELKA_NAZVU_NASTROJE + 1];
         memset(_docasne_uloziste_pro_nazev, 0, sizeof(_docasne_uloziste_pro_nazev));
-        fscanf(soubor_s_aktual_nastrojem, "%" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", _docasne_uloziste_pro_nazev);
+        fscanf(soubor_s_aktual_nastrojem, "%" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", _docasne_uloziste_pro_nazev); // tuto cast kodu vygenerovalo gemini
         strcpy(poleHudebnichNastroju[index_aktualniho_souboru].nazev, _docasne_uloziste_pro_nazev);
-         // for (int _index_nacitani_frekvenci = 0; _index_nacitani_frekvenci)
-        // DODELAT ALOKACI, DODELAT NAZVY TONU, DODELAT TAM NAHORE TY ZMRDY FGETS
+        poleHudebnichNastroju[index_aktualniho_souboru].poleTonu = calloc(poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu, sizeof(int));
+        poleHudebnichNastroju[index_aktualniho_souboru].nazvyTonu = calloc(poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu, sizeof(char*));
+        for (int ___index_pro_alokaci = 0; ___index_pro_alokaci < poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu; ___index_pro_alokaci++)
+        {
+            poleHudebnichNastroju[index_aktualniho_souboru].nazvyTonu[___index_pro_alokaci] = calloc(MAXIMALNI_DELKA_NAZVU_TONU, sizeof(char));
+        }
+        for (int _index_nacitani_frekvenci = 0; _index_nacitani_frekvenci <  poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu; _index_nacitani_frekvenci++)
+        {
+            fscanf(soubor_s_aktual_nastrojem, "%i;", &poleHudebnichNastroju[index_aktualniho_souboru].poleTonu[_index_nacitani_frekvenci]);
+        }
+        for (int ___index_nacitani_nazvu_tonu = 0; ___index_nacitani_nazvu_tonu < poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu; ___index_nacitani_nazvu_tonu++)
+        {
+            fscanf(soubor_s_aktual_nastrojem, "%" NA_STRING(MAXIMALNI_DELKA_NAZVU_TONU) "[^;];", poleHudebnichNastroju[index_aktualniho_souboru].nazvyTonu[___index_nacitani_nazvu_tonu]);
+        }
+        // DODELAT TAM NAHORE TY ZMRDY FGETS
         fclose(soubor_s_aktual_nastrojem);
     }
 }
