@@ -7,7 +7,7 @@
 /*
 
 Struktura souboru pro ukladani jednotlivych souboru
-
+UZ FUNGUJJEEEEEEEEE
 
 
 
