@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <nastaveni.h>
 #include <portaudio.h>
 #include <prehravaniTonu.h>
@@ -37,6 +38,8 @@ void praceSParametrem(char *parametry);
  * Vrátí ukazatele na streamy podle struktury hudebninastroj
  */
 PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj);
+
+void vybratAktualniNastroj(void);
 
 //-----------------------------------------------------------------------------------------------------------------------------
 void praceSParametrem(char *parametry)
@@ -128,6 +131,8 @@ void nastaveniNastaveniMain(void)
         case '\n':
             switch (indexNabidky)
             {
+            case 0:
+                vybratAktualniNastroj();
             }
             break;
         case 'q':
@@ -153,5 +158,57 @@ void vypsatNabidkuNastaveni(short index)
                    textNabidky[i]);
         else
             printf("%s\n", textNabidky[i]);
+    }
+}
+
+void vybratAktualniNastroj(void)
+{
+    short indexNabidky = 0;
+    char volba = 0;
+    short konecFunkce = 1;
+    while (konecFunkce)
+    {
+        clearScreen();
+        printf("Který hudební nástroj chcete ladit?\n\n");
+        for (int i = 0; i < 3; i++)
+        {
+            if (indexNabidky == i)
+                printf("\x1b[33m"
+                       "%s"
+                       "\n\x1b[0m",
+                       poleHudebnichNastroju[i].nazev);
+            else
+                printf("%s\n", poleHudebnichNastroju[i].nazev);
+        }
+        volba = getCharNow();
+        switch (volba)
+        {
+        case 's':
+        case 'S':
+            if (indexNabidky < pocetHudebnichNastroju)
+                indexNabidky++;
+            break;
+        case 'w':
+        case 'W':
+            if (indexNabidky > 0)
+                indexNabidky--;
+            break;
+        case '\n':
+            aktualniHudebniNastroj = indexNabidky;
+            clearScreen();
+            fflush(stdout);
+            printf("Aktuální nástroj byl změněn na %s", poleHudebnichNastroju[aktualniHudebniNastroj].nazev);
+            fflush(stdout);
+            sleep(2);
+            clearScreen();
+            konecFunkce = 0;
+            break;
+        case 'q':
+        case 'Q':
+            konecFunkce = 0;
+            break;
+        default:
+            break;
+        }
     }
 }

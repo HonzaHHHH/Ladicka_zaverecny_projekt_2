@@ -1,4 +1,5 @@
 #/bin/bash
 
 cp ./build/ladicka -t ./ladiciDir
-./ladiciDir/ladicka
+cd ./ladiciDir/
+./ladicka
