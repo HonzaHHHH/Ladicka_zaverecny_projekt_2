@@ -11,6 +11,7 @@
 #include <prehravaniTonu.h>
 #include <math.h>
 #include <terminalSettings.h>
+#include <nacitaniStruktur.h>
 
 /**
  * Proměnná, kam se ukládají nastavení přes bitové masky
@@ -33,6 +34,10 @@ void vypsatNabidkuNastaveni(short index);
  * Dostane parametry a podle toho zapne přepínače
  */
 void praceSParametrem(char *parametry);
+
+void posunTonu(void);
+
+void novyNastroj(void);
 
 /**
  * Vrátí ukazatele na streamy podle struktury hudebninastroj
@@ -134,7 +139,15 @@ void nastaveniNastaveniMain(void)
             case 0:
                 vybratAktualniNastroj();
             }
-            break;
+        case 1:
+        {
+            posunTonu();
+        }
+        case 2:
+        {
+            novyNastroj();
+        }
+        break;
         case 'q':
         case 'Q':
             konecFunkce = 0;
@@ -211,4 +224,72 @@ void vybratAktualniNastroj(void)
             break;
         }
     }
+}
+
+void novyNastroj()
+{
+    char nazevNovehoNastroje[MAXIMALNI_DELKA_NAZVU_NASTROJE];
+    printf("Zadejte název nového nástroje: ");
+    fgets(nazevNovehoNastroje, sizeof(nazevNovehoNastroje), stdin);
+    int novyPocetTonu = 0;
+    while (novyPocetTonu > 0)
+    {
+        printf("Zadejte počet tónů (musí být větší jak 0): ");
+        short _kontrola_poctu_tonu = scanf("%i", &novyPocetTonu);
+        fflush(stdin);
+        if (_kontrola_poctu_tonu != 1 || novyPocetTonu < 1)
+        {
+            novyPocetTonu = 0;
+        }
+    }
+    int frekvence[novyPocetTonu];
+    memset(frekvence, 0, sizeof(frekvence));
+    char **noveNazvyTonu = malloc(novyPocetTonu * sizeof(char *));
+    for (int __index_v_charu = 0; __index_v_charu < novyPocetTonu; __index_v_charu++)
+    {
+        noveNazvyTonu[__index_v_charu] = malloc(MAXIMALNI_DELKA_NAZVU_NASTROJE * sizeof(char));
+        memset(noveNazvyTonu[__index_v_charu], 0, sizeof(noveNazvyTonu[__index_v_charu]));
+    }
+    for (int __index_naplnovani = 0; __index_naplnovani < novyPocetTonu; __index_naplnovani++)
+    {
+        printf("Zadejte název %i. tónu: ", __index_naplnovani + 1);
+        fgets(noveNazvyTonu, MAXIMALNI_DELKA_NAZVU_NASTROJE, stdin);
+        while (frekvence[__index_naplnovani] > 0)
+        {
+            printf("Zadejte frekvenci tohoto tónu: ");
+            short ___kontrola_nacteni_frekvence = scanf("%i", &frekvence[__index_naplnovani]);
+            if (___kontrola_nacteni_frekvence != 1 || frekvence[__index_naplnovani] < 0)
+            {
+                frekvence[__index_naplnovani] = 0;
+            }
+        }
+    }
+    char nazevSouboru[MAXIMALNI_DELKA_NAZVU_NASTROJE];
+    memset (nazevSouboru, 0, sizeof(nazevSouboru));
+    printf("Zadejte název souboru, kam se data uloží: ");
+    fgets(nazevSouboru, MAXIMALNI_DELKA_NAZVU_NASTROJE, stdin);
+    FILE* souborNaNovyNastroj = fopen(nazevSouboru, "w");
+    if (souborNaNovyNastroj == NULL)
+    {
+        printf("Chyba, tak asi hovno\n");
+        return;
+    }
+    fprintf(souborNaNovyNastroj, "%i;%s;", novyPocetTonu, nazevNovehoNastroje);
+    for (int __index_zapisovani_frekvenci_do_souboru = 0; __index_zapisovani_frekvenci_do_souboru < novyPocetTonu; __index_zapisovani_frekvenci_do_souboru++)
+    {
+        fpirntf(souborNaNovyNastroj, "%i;", frekvence[__index_zapisovani_frekvenci_do_souboru]);
+    }
+    for (int __index_zapisovani_nazvu_do_souboru = 0; __index_zapisovani_nazvu_do_souboru < novyPocetTonu, __index_zapisovani_nazvu_do_souboru++)
+    {
+        fprintf(souborNaNovyNastroj, "%s;", noveNazvyTonu[__index_zapisovani_nazvu_do_souboru]);
+    }
+    fclose(souborNaNovyNastroj);
+    FILE * hlavniSoubor = fopne("nastroje.lad", "r+");
+    if (hlavniSoubor == NULL)
+    {
+        printf("No, asi hovno");
+        return;
+    }
+    // nacist cislo, podle toho nacist nazvy souboru, cislo se inkrementuje a vsechny soubory se zase ulozi
+
 }

@@ -20,15 +20,6 @@ UZ FUNGUJJEEEEEEEEE
 #include <unistd.h>
 #include <string.h>
 
-#define MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU 20
-#define MAXIMALNI_DELKA_NAZVU_TONU 20
-#define MAXIMALNI_DELKA_FREKVENCE_V_CHARECH 5
-#define MAXIMALNI_DELKA_POCTU_TONU_V_CHARECH 4 // počítám i s varhany
-#define MAXIMALNI_POCET_TONU 3000
-#define MAXIMALNI_DELKA_NAZVU_NASTROJE 50
-
-#define DELKA_FORMÁTOVÉ_SPECIFIKACE 7
-
 // tyto 2 makra mi pomohla gemini s vytvorenim a implementaci, protoze bych to sam asi nezvladl
 #define NA_STRING_HELPER(x) #x
 #define NA_STRING(x) NA_STRING_HELPER(x)
