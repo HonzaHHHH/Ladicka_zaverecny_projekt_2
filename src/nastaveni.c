@@ -138,14 +138,17 @@ void nastaveniNastaveniMain(void)
             {
             case 0:
                 vybratAktualniNastroj();
+                break;
             }
         case 1:
         {
             posunTonu();
+            break;
         }
         case 2:
         {
             novyNastroj();
+            break;
         }
         break;
         case 'q':
@@ -253,7 +256,7 @@ void novyNastroj()
     for (int __index_naplnovani = 0; __index_naplnovani < novyPocetTonu; __index_naplnovani++)
     {
         printf("Zadejte název %i. tónu: ", __index_naplnovani + 1);
-        fgets(noveNazvyTonu, MAXIMALNI_DELKA_NAZVU_NASTROJE, stdin);
+        fgets(noveNazvyTonu[__index_naplnovani], MAXIMALNI_DELKA_NAZVU_NASTROJE, stdin);
         while (frekvence[__index_naplnovani] > 0)
         {
             printf("Zadejte frekvenci tohoto tónu: ");
@@ -277,14 +280,14 @@ void novyNastroj()
     fprintf(souborNaNovyNastroj, "%i;%s;", novyPocetTonu, nazevNovehoNastroje);
     for (int __index_zapisovani_frekvenci_do_souboru = 0; __index_zapisovani_frekvenci_do_souboru < novyPocetTonu; __index_zapisovani_frekvenci_do_souboru++)
     {
-        fpirntf(souborNaNovyNastroj, "%i;", frekvence[__index_zapisovani_frekvenci_do_souboru]);
+        fprintf(souborNaNovyNastroj, "%i;", frekvence[__index_zapisovani_frekvenci_do_souboru]);
     }
-    for (int __index_zapisovani_nazvu_do_souboru = 0; __index_zapisovani_nazvu_do_souboru < novyPocetTonu, __index_zapisovani_nazvu_do_souboru++)
+    for (int __index_zapisovani_nazvu_do_souboru = 0; __index_zapisovani_nazvu_do_souboru < novyPocetTonu; __index_zapisovani_nazvu_do_souboru++)
     {
         fprintf(souborNaNovyNastroj, "%s;", noveNazvyTonu[__index_zapisovani_nazvu_do_souboru]);
     }
     fclose(souborNaNovyNastroj);
-    FILE * hlavniSoubor = fopne("nastroje.lad", "r+");
+    FILE * hlavniSoubor = fopen("nastroje.lad", "r+");
     if (hlavniSoubor == NULL)
     {
         printf("No, asi hovno");
@@ -293,3 +296,6 @@ void novyNastroj()
     // nacist cislo, podle toho nacist nazvy souboru, cislo se inkrementuje a vsechny soubory se zase ulozi
 
 }
+
+void posunTonu(void)
+{}
