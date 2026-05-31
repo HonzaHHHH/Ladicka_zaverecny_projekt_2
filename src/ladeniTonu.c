@@ -161,18 +161,22 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence, int cisloTonu)
         mvprintw(3, 49, "V");
         mvprintw(1, 80, "Frekvence nyni: %i   ", frekvence);
         mvprintw(2, 80, "Cilova frekvence: %i  ", cilovaFrekvence);
+        double min_Frekvence = cilovaFrekvence * ((float) 1 / 8);
+        double max_Frekvence = cilovaFrekvence * ((float) 15 / 8);
+        int pozice = (int)(((double)frekvence - min_Frekvence) / (max_Frekvence - min_Frekvence) * 100) + 1;
+        if (pozice < 1) pozice = 1;
+        if (pozice > 98) pozice = 98;
         mvprintw(4, 0, "[");
-        int koneci;
-        for (int i = 1; i < ((float)100 / ((float)15 / 8 * (cilovaFrekvence - ((float)1 / 8) * cilovaFrekvence)) * (frekvence - ((float)1 / 8 * frekvence))); i++)
+        for (int i = 1; i < pozice; i++)
         {
             mvprintw(4, i, "-");
-            koneci = i;
         }
-        mvprintw(4, koneci + 1, "|");
-        for (int y = koneci + 1; y < 100; y++)
+        mvprintw(4, pozice, "|");
+        for (int y = pozice + 1; y < 99; y++)
         {
-            mvprintw(4, koneci + 2, "-");
+            mvprintw(4, y, "-");
         }
+        mvprintw(4, 99, "]        ");
 
 
     }
