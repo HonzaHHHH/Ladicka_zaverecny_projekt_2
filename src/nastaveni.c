@@ -348,7 +348,7 @@ void novyNastroj()
         return;
     }
     rewind(hlavniSoubor);
-    fprintf(hlavniSoubor, "%i", staryPocetNastroju + 1);
+    fprintf(hlavniSoubor, "%i;", staryPocetNastroju + 1);
     for (int __zapisovani_Souboru = 0; __zapisovani_Souboru < staryPocetNastroju; __zapisovani_Souboru++)
     {
         fprintf(hlavniSoubor, "%s;", stare_nazvy[__zapisovani_Souboru]);
