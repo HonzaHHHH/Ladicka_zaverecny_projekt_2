@@ -359,9 +359,36 @@ void novyNastroj()
     fflush(stdout);
     sleep(2);
 
-    // nacist cislo, podle toho nacist nazvy souboru, cislo se inkrementuje a vsechny soubory se zase ulozi
+    // úklid
+    
+    for (int __index_cisteni = 0; __index_cisteni < novyPocetTonu; __index_cisteni++)
+    {
+        free(noveNazvyTonu[__index_cisteni]);
+    }
+    free(noveNazvyTonu);
+    noveNazvyTonu = NULL;
+    
+    for (int __cisteni_starych_nazvu = 0; __cisteni_starych_nazvu < staryPocetNastroju; __cisteni_starych_nazvu++)
+    {
+        free(stare_nazvy[__cisteni_starych_nazvu]);
+    }
+    free(stare_nazvy);
+    stare_nazvy = NULL;
 }
 
 void posunTonu(void)
 {
+    printf("Zadejte posunutí frekvence: ");
+    int staraFrekvence = posun_frekvence;
+    short __kontrola = scanf("%i", &posun_frekvence);
+    if (__kontrola != 1)
+    {
+        posun_frekvence = staraFrekvence;
+        printf("Chyba ve vstupu, nic se neuložilo\n");
+        return;
+    }
+    printf("Uloženo");
+    sleep(2);
+    vycistitBuffer();
+    return;
 }

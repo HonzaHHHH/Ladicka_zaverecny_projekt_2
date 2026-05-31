@@ -137,8 +137,8 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
                 indexMaxima = i;
             }
         }
-        // DODĚLAT INTERVAL OD 1/8 FREKVENCE DO 15/8 FREKVENCE // na základě mého pozorování 
         int frekvence = indexMaxima * vzorkovaciFrekvence / velikostFFTbufferu; // portaudio ukládá frekvence podle indexu, takze zde vezmu index, který vynásobím vzorkovací frekvenci a nakonec vydělím velikostí bufferu
+        frekvence += posun_frekvence; // pro ladeni frekvence z mikrofonu
         mvprintw(0, 0, "Frekvence je %i HZ                   ", frekvence);
         if ((cilovaFrekvence - frekvence) > 0)
         {

@@ -130,7 +130,6 @@ void nacistNastrojeZeSouboru()
         {
             fscanf(soubor_s_aktual_nastrojem, "%" NA_STRING(MAXIMALNI_DELKA_NAZVU_TONU) "[^;];", poleHudebnichNastroju[index_aktualniho_souboru].nazvyTonu[___index_nacitani_nazvu_tonu]);
         }
-        // DODELAT TAM NAHORE TY ZMRDY FGETS
         fclose(soubor_s_aktual_nastrojem);
     }
 }
