@@ -23,6 +23,12 @@ int vzorkuNaBuffer = 256;
 double cisloPi = (double)3.14159265358979323846264338327950288419716939937510f; // převzato z Wikipedie: https://cs.wikipedia.org/wiki/P%C3%AD_(%C4%8D%C3%ADslo)
 int velikostFFTbufferu = 32768;
 
+// opet zase pomoc od gemini
+#define NA_STRING_HELPER(x) #x
+#define NA_STRING(x) NA_STRING_HELPER(x)
+
+int posun_frekvence = 0;
+
 /**
  * Spouští nabídku nastavení
  */
@@ -47,6 +53,15 @@ PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj);
 void vybratAktualniNastroj(void);
 
 //-----------------------------------------------------------------------------------------------------------------------------
+
+void vycistitBuffer(void)
+{
+    int c;
+    // Bude číst znaky z bufferu tak dlouho, dokud nenarazí na Enter (\n) nebo konec souboru (EOF)
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+}
+
 void praceSParametrem(char *parametry)
 {
     if (strcmp(parametry, "--ignsys") == 0) // pro ignoraci typu systému
@@ -139,18 +154,19 @@ void nastaveniNastaveniMain(void)
             case 0:
                 vybratAktualniNastroj();
                 break;
+
+            case 1:
+            {
+                posunTonu();
+                break;
             }
-        case 1:
-        {
-            posunTonu();
+            case 2:
+            {
+                novyNastroj();
+                break;
+            }
+            }
             break;
-        }
-        case 2:
-        {
-            novyNastroj();
-            break;
-        }
-        break;
         case 'q':
         case 'Q':
             konecFunkce = 0;
@@ -186,7 +202,7 @@ void vybratAktualniNastroj(void)
     {
         clearScreen();
         printf("Který hudební nástroj chcete ladit?\n\n");
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < pocetHudebnichNastroju; i++)
         {
             if (indexNabidky == i)
                 printf("\x1b[33m"
@@ -234,12 +250,17 @@ void novyNastroj()
     char nazevNovehoNastroje[MAXIMALNI_DELKA_NAZVU_NASTROJE];
     printf("Zadejte název nového nástroje: ");
     fgets(nazevNovehoNastroje, sizeof(nazevNovehoNastroje), stdin);
+    for (int __cistici__ = 0; __cistici__ < MAXIMALNI_DELKA_NAZVU_NASTROJE; __cistici__++)
+    {
+        if (nazevNovehoNastroje[__cistici__] == '\n')
+            nazevNovehoNastroje[__cistici__] = '\0';
+    }
     int novyPocetTonu = 0;
-    while (novyPocetTonu > 0)
+    while (novyPocetTonu <= 0)
     {
         printf("Zadejte počet tónů (musí být větší jak 0): ");
         short _kontrola_poctu_tonu = scanf("%i", &novyPocetTonu);
-        fflush(stdin);
+        vycistitBuffer();
         if (_kontrola_poctu_tonu != 1 || novyPocetTonu < 1)
         {
             novyPocetTonu = 0;
@@ -251,16 +272,22 @@ void novyNastroj()
     for (int __index_v_charu = 0; __index_v_charu < novyPocetTonu; __index_v_charu++)
     {
         noveNazvyTonu[__index_v_charu] = malloc(MAXIMALNI_DELKA_NAZVU_NASTROJE * sizeof(char));
-        memset(noveNazvyTonu[__index_v_charu], 0, sizeof(noveNazvyTonu[__index_v_charu]));
+        memset(noveNazvyTonu[__index_v_charu], 0, sizeof(MAXIMALNI_DELKA_NAZVU_TONU * sizeof(char)));
     }
     for (int __index_naplnovani = 0; __index_naplnovani < novyPocetTonu; __index_naplnovani++)
     {
         printf("Zadejte název %i. tónu: ", __index_naplnovani + 1);
         fgets(noveNazvyTonu[__index_naplnovani], MAXIMALNI_DELKA_NAZVU_NASTROJE, stdin);
-        while (frekvence[__index_naplnovani] > 0)
+        for (int __cistici__ = 0; __cistici__ < MAXIMALNI_DELKA_NAZVU_NASTROJE; __cistici__++)
+        {
+            if (noveNazvyTonu[__index_naplnovani][__cistici__] == '\n')
+                noveNazvyTonu[__index_naplnovani][__cistici__] = '\0';
+        }
+        while (frekvence[__index_naplnovani] <= 0)
         {
             printf("Zadejte frekvenci tohoto tónu: ");
             short ___kontrola_nacteni_frekvence = scanf("%i", &frekvence[__index_naplnovani]);
+            vycistitBuffer();
             if (___kontrola_nacteni_frekvence != 1 || frekvence[__index_naplnovani] < 0)
             {
                 frekvence[__index_naplnovani] = 0;
@@ -268,10 +295,15 @@ void novyNastroj()
         }
     }
     char nazevSouboru[MAXIMALNI_DELKA_NAZVU_NASTROJE];
-    memset (nazevSouboru, 0, sizeof(nazevSouboru));
-    printf("Zadejte název souboru, kam se data uloží: ");
+    memset(nazevSouboru, 0, sizeof(nazevSouboru));
+    printf("Zadejte název souboru, kam se data uloží (i s příponou): ");
     fgets(nazevSouboru, MAXIMALNI_DELKA_NAZVU_NASTROJE, stdin);
-    FILE* souborNaNovyNastroj = fopen(nazevSouboru, "w");
+    for (int __cistici__ = 0; __cistici__ < MAXIMALNI_DELKA_NAZVU_NASTROJE; __cistici__++)
+    {
+        if (nazevSouboru[__cistici__] == '\n')
+            nazevSouboru[__cistici__] = '\0';
+    }
+    FILE *souborNaNovyNastroj = fopen(nazevSouboru, "w");
     if (souborNaNovyNastroj == NULL)
     {
         printf("Chyba, tak asi hovno\n");
@@ -287,15 +319,49 @@ void novyNastroj()
         fprintf(souborNaNovyNastroj, "%s;", noveNazvyTonu[__index_zapisovani_nazvu_do_souboru]);
     }
     fclose(souborNaNovyNastroj);
-    FILE * hlavniSoubor = fopen("nastroje.lad", "r+");
+    FILE *hlavniSoubor = fopen("nastroje.lad", "r+");
     if (hlavniSoubor == NULL)
     {
         printf("No, asi hovno");
         return;
     }
-    // nacist cislo, podle toho nacist nazvy souboru, cislo se inkrementuje a vsechny soubory se zase ulozi
 
+    rewind(hlavniSoubor);
+    int staryPocetNastroju = 0;
+    short __kontrola_stareho_poctu = fscanf(hlavniSoubor, "%i;", &staryPocetNastroju);
+    if (__kontrola_stareho_poctu != 1 || staryPocetNastroju < 1)
+    {
+        printf("Chyba v načítání staré konfigurace\n");
+        return;
+    }
+    char **stare_nazvy = malloc(staryPocetNastroju * sizeof(char *));
+    for (int __nacitani_starych_nazvu = 0; __nacitani_starych_nazvu < staryPocetNastroju; __nacitani_starych_nazvu++)
+    {
+        stare_nazvy[__nacitani_starych_nazvu] = malloc(MAXIMALNI_DELKA_NAZVU_NASTROJE * sizeof(char));
+        fscanf(hlavniSoubor, "%" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", stare_nazvy[__nacitani_starych_nazvu]); // opet radek od gemini
+    }
+    fclose(hlavniSoubor);
+    hlavniSoubor = fopen("nastroje.lad", "w");
+    if (hlavniSoubor == NULL)
+    {
+        printf("Zase nic");
+        return;
+    }
+    rewind(hlavniSoubor);
+    fprintf(hlavniSoubor, "%i", staryPocetNastroju + 1);
+    for (int __zapisovani_Souboru = 0; __zapisovani_Souboru < staryPocetNastroju; __zapisovani_Souboru++)
+    {
+        fprintf(hlavniSoubor, "%s;", stare_nazvy[__zapisovani_Souboru]);
+    }
+    fprintf(hlavniSoubor, "%s;", nazevSouboru);
+    fclose(hlavniSoubor);
+    printf("Funkce dokončena, pro načtení nových souboru restartujte aplikaci");
+    fflush(stdout);
+    sleep(2);
+
+    // nacist cislo, podle toho nacist nazvy souboru, cislo se inkrementuje a vsechny soubory se zase ulozi
 }
 
 void posunTonu(void)
-{}
+{
+}

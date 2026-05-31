@@ -67,4 +67,6 @@ PaStream ** nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj);
 
 void nastaveniNastaveniMain();
 
+extern int posun_frekvence;
+
 #endif
