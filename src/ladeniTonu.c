@@ -172,11 +172,11 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence, int cisloTonu)
             mvprintw(4, i, "-");
         }
         mvprintw(4, pozice, "|");
-        for (int y = pozice + 1; y < 99; y++)
+        for (int y = pozice + 1; y < 100; y++)
         {
             mvprintw(4, y, "-");
         }
-        mvprintw(4, 99, "]        ");
+        mvprintw(4, 100, "]        ");
 
 
     }

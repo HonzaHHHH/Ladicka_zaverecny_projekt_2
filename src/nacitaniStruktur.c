@@ -65,6 +65,7 @@ void nacistPosunFrekvence(void);
  */
 void nacistJmenaSouboru(void)
 {
+    // Zkusí otevřít soubor se jmény, když není tak se přeskočí
     FILE *souborSNazvy = fopen("nastroje.lad", "r"); // Stačí režim r
     if (souborSNazvy == NULL) 
     {
@@ -81,13 +82,13 @@ void nacistJmenaSouboru(void)
         return;
     }
 
-    // Alokace pole ukazatelů
+    // Alokace pole ukazatelů, naplní pole charů náazvy souborů, přes které se pak budou otevírat
     nazvySouboru = malloc(sizeof(char *) * pocetHudebnichNastroju);
     for (int i = 0; i < pocetHudebnichNastroju; i++) {
         nazvySouboru[i] = malloc(sizeof(char) * MAXIMALNI_DELKA_NAZVU_NASTROJE);
         memset(nazvySouboru[i], '\0', MAXIMALNI_DELKA_NAZVU_NASTROJE);
     }
-
+    // načtení názvů
     for (int i = 0; i < pocetHudebnichNastroju; i++) {
         // Mezera před % přeskočí případné neviditelné bílé znaky (odřádkování, mezery)
         fscanf(souborSNazvy, " %" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", nazvySouboru[i]); // toto mi opet poradilo gemini po řadě neúspěchů
@@ -98,6 +99,7 @@ void nacistJmenaSouboru(void)
 
 void nacistNastrojeZeSouboru(void)
 {
+    // alokujeme si pole struktur, které vyčistíme
     poleHudebnichNastroju = malloc(sizeof(struct hudebniNastroj) * pocetHudebnichNastroju);
     if (poleHudebnichNastroju == NULL)
     {
@@ -105,6 +107,8 @@ void nacistNastrojeZeSouboru(void)
         return;
     }
     memset(poleHudebnichNastroju, 0, sizeof(struct hudebniNastroj) * pocetHudebnichNastroju);
+
+    // pro každou strukturu si načteme vždy ze souboru, co je uložený v názvech souborů, jednotlivé parametrysl
     for (int index_aktualniho_souboru = 0; index_aktualniho_souboru < pocetHudebnichNastroju; index_aktualniho_souboru++)
     {
         FILE *soubor_s_aktual_nastrojem = fopen(nazvySouboru[index_aktualniho_souboru], "r");
@@ -113,6 +117,8 @@ void nacistNastrojeZeSouboru(void)
             syslog(LOG_WARNING, "soubor s hudebním nástrojem (index %i) se nepodařilo otevřít, přeskakuji", index_aktualniho_souboru);
             continue;
         }
+        
+        // tak teďka načteme jednotlivé položky z daného nástroje
         rewind(soubor_s_aktual_nastrojem);
         short _kontrola_nacteni_poctu_frekvenci = fscanf(soubor_s_aktual_nastrojem, "%i;", &poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu);
         if (_kontrola_nacteni_poctu_frekvenci != 1 || poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu < 1)
@@ -145,20 +151,24 @@ void nacistNastrojeZeSouboru(void)
 
 void nacitaniStrukturMain(void)
 {
-    // ziskame odkud cerpat informace
+    // načteme si trim
     nacistPosunFrekvence();
+    // ziskame odkud cerpat informace
     nacistJmenaSouboru();
+    // načteme všechny nástroje
     nacistNastrojeZeSouboru();
 }
 
 void nacistPosunFrekvence(void)
 {
+    // otevře soubor s trimem
     FILE * ladeni = fopen("trim.lad", "r+");
     if (ladeni == NULL)
     {
         syslog(LOG_ERR, "Nepodařilo se otevřít soubor s trimem, přeskakuji ladení frekvence");
         return;
     }
+    // jednoduše načte trim
     rewind(ladeni);
     short __kontrola_fscanf = fscanf(ladeni, "%i", &posun_frekvence);
     if (__kontrola_fscanf != 1)

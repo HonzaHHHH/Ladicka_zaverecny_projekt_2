@@ -31,6 +31,13 @@
 
         Pro korektní ukončení programu vždy používám 0.
 */
+
+/* Při programování jsem zjistil, že to je sice hezké řešení, ale na diagnostiku chyb mi stači jednoduchý text, který se nebude opakovat a já stejně uvidím, co kde blbne.
+    Takže využití možná později.
+ */
+
+
+
 #define EXIT_NORMALNI 0
 #define EXIT_CHYBUSER 100
 #define EXIT_ERRPROG 200

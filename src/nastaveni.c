@@ -253,6 +253,7 @@ void vybratAktualniNastroj(void)
 
 void novyNastroj()
 {
+    // postupně si načteme jednotlivé položky
     char nazevNovehoNastroje[MAXIMALNI_DELKA_NAZVU_NASTROJE];
     printf("Zadejte název nového nástroje: ");
     fgets(nazevNovehoNastroje, sizeof(nazevNovehoNastroje), stdin);
@@ -310,6 +311,8 @@ void novyNastroj()
         if (nazevSouboru[__cistici__] == '\n')
             nazevSouboru[__cistici__] = '\0';
     }
+
+    // ted jdeme zapisovat, nejdrive so souboru samotného nástroje
     FILE *souborNaNovyNastroj = fopen(nazevSouboru, "w");
     if (souborNaNovyNastroj == NULL)
     {
@@ -327,11 +330,13 @@ void novyNastroj()
         fprintf(souborNaNovyNastroj, "%s;", noveNazvyTonu[__index_zapisovani_nazvu_do_souboru]);
     }
     fclose(souborNaNovyNastroj);
+    // tedka zkusíme otevřít nástroje.lad
     FILE *hlavniSoubor = fopen("nastroje.lad", "r");
     if (hlavniSoubor == NULL)
     {
         printf("Chyba");
         syslog(LOG_ERR, "Nepodařilo se otevřít soubor nastroje.lad pro čtení");
+        // když se to nepodaří tak si založíme nový, protože chyba předtím indikuje, že se neotevře
         hlavniSoubor = fopen("nastroje.lad", "w");
         if (hlavniSoubor == NULL)
         {
@@ -340,11 +345,15 @@ void novyNastroj()
             return;
         }
         rewind(hlavniSoubor);
+
+        // a zase jenom zapíšeme
         fprintf(hlavniSoubor, "1;%s;", nazevSouboru);
         fclose(hlavniSoubor);
         return;
     }
 
+    // tady jedeme normálně, protože se soubor normálně načetl
+    // přečteme si nejdříve počet nástroju, připravíme si dočasné uložiště a do něho stávající data napíšeme
     rewind(hlavniSoubor);
     int staryPocetNastroju = 0;
     short __kontrola_stareho_poctu = fscanf(hlavniSoubor, "%i;", &staryPocetNastroju);
@@ -360,6 +369,8 @@ void novyNastroj()
         stare_nazvy[__nacitani_starych_nazvu] = malloc(MAXIMALNI_DELKA_NAZVU_NASTROJE * sizeof(char));
         fscanf(hlavniSoubor, "%" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", stare_nazvy[__nacitani_starych_nazvu]); // opet radek od gemini
     }
+
+    // ted to zavřeme a znovu otevřeme prázdný
     fclose(hlavniSoubor);
     hlavniSoubor = fopen("nastroje.lad", "w");
     if (hlavniSoubor == NULL)
@@ -369,6 +380,8 @@ void novyNastroj()
         return;
     }
     rewind(hlavniSoubor);
+    
+    // a zase zapisujeme, jen inkrementujeme stary pocet nástrojů o řádek níže a na konec přidáme název souboru, ve kterém je uložen nový nástroj
     fprintf(hlavniSoubor, "%i;", staryPocetNastroju + 1);
     for (int __zapisovani_Souboru = 0; __zapisovani_Souboru < staryPocetNastroju; __zapisovani_Souboru++)
     {
@@ -399,6 +412,7 @@ void novyNastroj()
 
 void posunTonu(void)
 {
+    // získáme hodnotu posunutí
     printf("Zadejte posunutí frekvence: ");
     int staraFrekvence = posun_frekvence;
     short __kontrola = scanf("%i", &posun_frekvence);
@@ -412,6 +426,7 @@ void posunTonu(void)
     sleep(2);
     vycistitBuffer();
     syslog(LOG_INFO, "Změnil se trim frekvence");
+    // jdeme to ještě uložit
     FILE *ulozeni_trim = fopen("trim.lad", "w");
     if (ulozeni_trim == NULL)
     {
