@@ -159,6 +159,9 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence, int cisloTonu)
         mvprintw(0, 0, "Ladeni                      Ton o frekvenci: %i   Nazev tonu: %s                               Hudebni nastroj: %s", cilovaFrekvence, poleHudebnichNastroju[aktualniHudebniNastroj].nazvyTonu[cisloTonu], poleHudebnichNastroju[aktualniHudebniNastroj].nazev);
         mvprintw(2, 49, "|");
         mvprintw(3, 49, "V");
+        mvprintw(1, 80, "Frekvence nyni: %i   ", frekvence);
+        mvprintw(2, 80, "Cilova frekvence: %i  ", cilovaFrekvence);
+        mvprintw(4, 0, "[");
 
     }
     Pa_StopStream(ukazatelNaStream);
