@@ -13,6 +13,7 @@
 #include <ncurses.h>
 #include <kiss_fft.h>
 #include <unistd.h>
+#include <syslog.h>
 
 /**
  * spustí nabídku pro ladění
@@ -34,13 +35,15 @@ void ladeniTonuMain()
     if (errorPortAudio != paNoError)
     {
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
+        syslog(LOG_ERR, "PortAudio chyba: %s (ladeni)", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VLADENI + 1);
     }
     if (&poleHudebnichNastroju[aktualniHudebniNastroj] == NULL)
     {
-        printf("Nepodařilo se otevřít nástroj");
+        printf("Nepodařilo se otevřít nástroj (ladeni)");
         sleep(1);
         Pa_Terminate();
+        syslog(LOG_ERR, "Nepodařilo se otevřít nástroj (ladeni)");
         return;
     }
     if (poleHudebnichNastroju[aktualniHudebniNastroj].poleTonu == 0)
@@ -48,6 +51,7 @@ void ladeniTonuMain()
         printf("Nebyly zjištěny zádné nástroje, zkuste Nastavení\n");
         sleep(2);
         Pa_Terminate();
+        syslog(LOG_ERR, "Nebyly zjištěny zádné nástroje (ladeni)");
         return;
     }
     PaStream **poleStreamu = nastaveniPortAudioStreamuLadeni(poleHudebnichNastroju[aktualniHudebniNastroj]);

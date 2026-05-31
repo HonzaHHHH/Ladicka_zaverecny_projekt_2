@@ -2,6 +2,10 @@
 #define _NACITANI_STRUKTUR_H
 
 
+/**
+ * Makra, co se mi hodí
+ */
+
 #define MAXIMALNI_DELKA_NAZVU_SEZNAMU_NASTROJU 20
 #define MAXIMALNI_DELKA_NAZVU_TONU 20
 #define MAXIMALNI_DELKA_FREKVENCE_V_CHARECH 5
@@ -11,6 +15,10 @@
 
 #define DELKA_FORMÁTOVÉ_SPECIFIKACE 7
 
+
+/**
+ * Struktura Hudební nástroj - v tomto formátu pak jsou veškerá data potřebná pro běh programu
+ */
 struct hudebniNastroj
 {
     int pocetTonu;
@@ -19,15 +27,10 @@ struct hudebniNastroj
     char ** nazvyTonu;
 };
 
-extern struct hudebniNastroj gitara;
-
 extern struct hudebniNastroj *poleHudebnichNastroju;
 extern int pocetHudebnichNastroju;
 extern int aktualniHudebniNastroj;
 
 void nacitaniStrukturMain(void);
-
-
-void setupKytara(void);
 
 #endif

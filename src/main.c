@@ -1,4 +1,4 @@
-
+// Jan Huml uvádí:
 
 /*
     Závěrečný projekt ze 2. ročníku
@@ -12,7 +12,6 @@
     V konzoli
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <portaudio.h> // portaudio-19-dev
@@ -21,6 +20,7 @@
 #include <terminalSettings.h> // moje knihovna
 #include <prehravaniTonu.h>
 #include <ladeniTonu.h>
+#include <syslog.h>
 
 // Funkce pro přeheldnost deklaruji již tady (a taky se mi to více líbí)
 
@@ -28,13 +28,17 @@ int main(int pocetParametru, char **argumenty);
 void vypsatNabidku(int aktivniPolozka);
 void odejit(void);
 
+// -----------------------------------------------------------------------------
+
 int main(int pocetArgumentu, char **argumenty)
 {
+    openlog("ladicka-jh", LOG_PID, LOG_USER);
+    syslog(LOG_INFO, "Spuštěno");
     // ----------------------------------------------------------
     /*
         První část programu - načtení parametrů z konzole
     */
-   // ------------------------------------------------------------
+    // ------------------------------------------------------------
     for (int i = 1; i < pocetArgumentu; i++)
     {
         praceSParametrem(argumenty[i]);
@@ -70,7 +74,6 @@ int main(int pocetArgumentu, char **argumenty)
             printf("Je mi líto, ale tento systém není podporován\n");
         }
     }
-
 
     setupTerminalFunctions(); // moje knihovna z loňského roku
 
@@ -142,19 +145,17 @@ void odejit(void)
     switch (volba)
     {
     case 'a':
-        clearScreen();
-        printf("Program ukončen\n");
-        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("(Ty hajzle!)\n");
-        exit(EXIT_NORMALNI);
-        break;
     case 'A':
         clearScreen();
         printf("Program ukončen\n");
-        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("(Ty hajzle!)\n");
+        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS))
+            printf("(Ty hajzle!)\n");
+        syslog(LOG_INFO, "Uživatel ukončil aplikaci normálně");
+        closelog();
         exit(EXIT_NORMALNI);
+
+        break;
     case 'n':
-        clearScreen();
-        return;
     case 'N':
         clearScreen();
         return;

@@ -11,6 +11,7 @@
 #include <terminalSettings.h>
 #include <math.h>
 #include <unistd.h>
+#include <syslog.h>
 
 void PrehravaniTonuMain(void);
 struct dataProStreamPrehravani *poleDatProStream;
@@ -26,13 +27,15 @@ void PrehravaniTonuMain(void)
     if (errorPortAudio != paNoError)
     {
         printf("PortAudio error: %s\n", Pa_GetErrorText(errorPortAudio));
+        syslog(LOG_ERR, "PortAudio error: %s (prehravani)", Pa_GetErrorText(errorPortAudio));
         exit(EXIT_ERRLIBS + EXIT_VPLAY + 1);
     }
     if (&poleHudebnichNastroju[aktualniHudebniNastroj] == NULL)
     {
-        printf("Nepodařilo se otevřít nástroj");
+        printf("Nepodařilo se otevřít nástroj (prehravani)");
         sleep(1);
         Pa_Terminate();
+        syslog(LOG_ERR, "Nepodařilo se otevřít nástroj (prehravani)");
         return;
     }
     if (poleHudebnichNastroju[aktualniHudebniNastroj].pocetTonu == 0)
@@ -40,6 +43,7 @@ void PrehravaniTonuMain(void)
         printf("Objevil se problem pri otevirani souboru, chyba č. 1532\n");
         sleep(2);
         Pa_Terminate();
+        syslog(LOG_ERR, "Objevil se problem pri otevirani souboru (prehravani)");
         return;
     }
     PaStream **poleStreamu = nastaveniPortAudioStreamuPrehravani(poleHudebnichNastroju[aktualniHudebniNastroj]);

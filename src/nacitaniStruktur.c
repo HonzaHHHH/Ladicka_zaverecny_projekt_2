@@ -1,17 +1,5 @@
 /*
-    Tato část kódu složí k načítání struktur hudebních nástrojů ze souborů
-    !!!! POZOR !!!!!
-    Tato část obsahuje velké zbytky po prvním testování, kód je psán velmi jednoduše, abych se mohl soustředit na hlavní problematiku souboru a ne na blbý struktury
-*/
-
-/*
-
-Struktura souboru pro ukladani jednotlivych souboru
-UZ FUNGUJJEEEEEEEEE
-
-
-
-
+    Tato část kódu řeší načítání dat ze souboru pro každý hudební nástroj
 */
 
 #include <stdlib.h>
@@ -19,58 +7,68 @@ UZ FUNGUJJEEEEEEEEE
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <syslog.h>
 
 // tyto 2 makra mi pomohla gemini s vytvorenim a implementaci, protoze bych to sam asi nezvladl
 #define NA_STRING_HELPER(x) #x
 #define NA_STRING(x) NA_STRING_HELPER(x)
 
-
+/**
+ * Pole hudebních nástrojů - pole struktur hudebních nástrojů, ze kterého se pak tvoří streamy
+ */
 struct hudebniNastroj *poleHudebnichNastroju;
+
+/**
+ * Počet hudebních nástrojů
+ */
 int pocetHudebnichNastroju;
+
+/**
+ * Index aktuálního hudebního nástroje, výchozí hodnota je 0
+ */
 int aktualniHudebniNastroj = 0;
+
+/**
+ * Řětězce pro načítání souborů, využití pouze v rámci tohoto .c souboru
+ */
 char **nazvySouboru;
 
-struct hudebniNastroj gitara;
 
-void setupKytara(void);
+/**
+ * Načte jména souborů
+ */
+void nacistJmenaSouboru(void);
+
+/**
+ * Načte jednotlivé nástroje ze souborů
+ */
+void nacistNastrojeZeSouboru(void);
+
+/**
+ * Spustí načítání struktur
+ */
+void nacitaniStrukturMain(void);
 
 // --------------------------------------------------------------------
 
-void setupKytara(void)
-{
-    strcpy(gitara.nazev, "Kytara 6 strunná");
-    gitara.pocetTonu = 6;
-    gitara.poleTonu = malloc(sizeof(int) * gitara.pocetTonu);
-    gitara.poleTonu[0] = 82;
-    gitara.poleTonu[1] = 110;
-    gitara.poleTonu[2] = 147;
-    gitara.poleTonu[3] = 196;
-    gitara.poleTonu[4] = 247;
-    gitara.poleTonu[5] = 330;
 
-    gitara.nazvyTonu = malloc(sizeof(char *) * gitara.pocetTonu);
-    for (int i = 0; i < gitara.pocetTonu; i++)
-    {
-        gitara.nazvyTonu[i] = malloc(sizeof(char) * 10);
-    }
-    strcpy(gitara.nazvyTonu[0], "Struna E2");
-    strcpy(gitara.nazvyTonu[1], "Struna A2");
-    strcpy(gitara.nazvyTonu[2], "Struna D3");
-    strcpy(gitara.nazvyTonu[3], "Struna G3");
-    strcpy(gitara.nazvyTonu[4], "Struna B3");
-    strcpy(gitara.nazvyTonu[5], "Struna E4");
-}
-
+/**
+ * Tato funkce jednoduše načte ze souboru nastroje.lad 
+ */
 void nacistJmenaSouboru(void)
 {
     FILE *souborSNazvy = fopen("nastroje.lad", "r"); // Stačí režim "r"
-    if (souborSNazvy == NULL) return;
-
+    if (souborSNazvy == NULL) 
+    {
+        syslog(LOG_WARNING, "Neexistuje soubor s nástroji");
+        // řízení pro první spuštění
+    }
     short kontrola_poctu = fscanf(souborSNazvy, "%i;", &pocetHudebnichNastroju);
     if (kontrola_poctu != 1) {
         pocetHudebnichNastroju = 0;
         nazvySouboru = NULL;
         fclose(souborSNazvy);
+        syslog(LOG_ERR, "Soubor s nástroji nejde přečíst");
         return;
     }
 
@@ -81,20 +79,20 @@ void nacistJmenaSouboru(void)
         memset(nazvySouboru[i], '\0', MAXIMALNI_DELKA_NAZVU_NASTROJE);
     }
 
-    // === TADY JE TA ZMĚNA: Žádné fgets, žádné ruční sekání znaků ===
     for (int i = 0; i < pocetHudebnichNastroju; i++) {
         // Mezera před % přeskočí případné neviditelné bílé znaky (odřádkování, mezery)
-        fscanf(souborSNazvy, " %" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", nazvySouboru[i]);
+        fscanf(souborSNazvy, " %" NA_STRING(MAXIMALNI_DELKA_NAZVU_NASTROJE) "[^;];", nazvySouboru[i]); // toto mi opet poradilo gemini po řadě neúspěchů
     }
 
     fclose(souborSNazvy);
 }
 
-void nacistNastrojeZeSouboru()
+void nacistNastrojeZeSouboru(void)
 {
     poleHudebnichNastroju = malloc(sizeof(struct hudebniNastroj) * pocetHudebnichNastroju);
     if (poleHudebnichNastroju == NULL)
     {
+        syslog(LOG_ERR, "Nealokovalo se pole hudebních nástrojů");
         return;
     }
     memset(poleHudebnichNastroju, 0, sizeof(struct hudebniNastroj) * pocetHudebnichNastroju);
@@ -103,6 +101,7 @@ void nacistNastrojeZeSouboru()
         FILE *soubor_s_aktual_nastrojem = fopen(nazvySouboru[index_aktualniho_souboru], "r");
         if (soubor_s_aktual_nastrojem == NULL)
         {
+            syslog(LOG_WARNING, "soubor s hudebním nástrojem (index %i) se nepodařilo otevřít, přeskakuji", index_aktualniho_souboru);
             continue;
         }
         rewind(soubor_s_aktual_nastrojem);
@@ -110,6 +109,7 @@ void nacistNastrojeZeSouboru()
         if (_kontrola_nacteni_poctu_frekvenci != 1 || poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu < 1)
         {
             poleHudebnichNastroju[index_aktualniho_souboru].pocetTonu = 0;
+            syslog(LOG_WARNING, "U souboru s hudebním nástrojem (index %i) se nepodařilo načíst počet tónů", index_aktualniho_souboru);
             continue;
         }
         char _docasne_uloziste_pro_nazev[MAXIMALNI_DELKA_NAZVU_NASTROJE + 1];

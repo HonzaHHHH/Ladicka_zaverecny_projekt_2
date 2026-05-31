@@ -12,6 +12,7 @@
 #include <math.h>
 #include <terminalSettings.h>
 #include <nacitaniStruktur.h>
+#include <syslog.h>
 
 /**
  * Proměnná, kam se ukládají nastavení přes bitové masky
@@ -89,12 +90,14 @@ PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj)
     if (nastroj.pocetTonu <= 0 || nastroj.poleTonu == NULL)
     {
         printf("Chyba: napadly nastroj ma pocetTonu=%d, poleTonu=%p\n", nastroj.pocetTonu, (void *)nastroj.poleTonu);
+        syslog(LOG_ERR, "Struktura s hudebním nástrojem je špatná");
         return NULL;
     }
     PaStream **polestreamu = malloc(sizeof(PaStream *) * nastroj.pocetTonu);
     if (polestreamu == NULL)
     {
         printf("Chyba: nepodarilo se alokovat poleStreamu\n");
+        syslog(LOG_ERR, "Nepodařilo se alokovat pole streamů");
         return NULL;
     }
     poleDatProStream = malloc(sizeof(struct dataProStreamPrehravani) * nastroj.pocetTonu);
@@ -102,6 +105,7 @@ PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj)
     {
         printf("Chyba: nepodarilo se alokovat poleDatProStream\n");
         free(polestreamu);
+        syslog(LOG_ERR, "Nepodařilo se alokovat pole dat pro stream");
         return NULL;
     }
     for (int i = 0; i < nastroj.pocetTonu; i++)
@@ -115,6 +119,7 @@ PaStream **nastaveniPortAudioStreamuPrehravani(struct hudebniNastroj nastroj)
         if (paErr != paNoError)
         {
             printf("PortAudio OpenStream error: %s\n", Pa_GetErrorText(paErr));
+            syslog(LOG_ERR, "Chyba port audio: %s", Pa_GetErrorText(paErr));
             for (int j = 0; j < i; j++)
                 Pa_CloseStream(polestreamu[j]);
             free(polestreamu);
@@ -230,6 +235,7 @@ void vybratAktualniNastroj(void)
             clearScreen();
             fflush(stdout);
             printf("Aktuální nástroj byl změněn na %s", poleHudebnichNastroju[aktualniHudebniNastroj].nazev);
+            syslog(LOG_INFO, "Uživatel změnil aktuální hudební nástroj");
             fflush(stdout);
             sleep(2);
             clearScreen();
@@ -264,6 +270,7 @@ void novyNastroj()
         if (_kontrola_poctu_tonu != 1 || novyPocetTonu < 1)
         {
             novyPocetTonu = 0;
+            syslog(LOG_WARNING, "Uživatel je debil a neumí napsat číslo větší než 0");
         }
     }
     int frekvence[novyPocetTonu];
@@ -306,7 +313,8 @@ void novyNastroj()
     FILE *souborNaNovyNastroj = fopen(nazevSouboru, "w");
     if (souborNaNovyNastroj == NULL)
     {
-        printf("Chyba, tak asi hovno\n");
+        printf("Chyba");
+        syslog(LOG_ERR, "Nepodařilo se vytvořit soubor pro zápis nástroje");
         return;
     }
     fprintf(souborNaNovyNastroj, "%i;%s;", novyPocetTonu, nazevNovehoNastroje);
@@ -322,7 +330,8 @@ void novyNastroj()
     FILE *hlavniSoubor = fopen("nastroje.lad", "r+");
     if (hlavniSoubor == NULL)
     {
-        printf("No, asi hovno");
+        printf("Chyba");
+        syslog(LOG_ERR, "Nepodařilo se otevřít soubor nastroje.lad pro čtení");
         return;
     }
 
@@ -332,6 +341,7 @@ void novyNastroj()
     if (__kontrola_stareho_poctu != 1 || staryPocetNastroju < 1)
     {
         printf("Chyba v načítání staré konfigurace\n");
+        syslog(LOG_ERR, "Chyba v načítání staré konfigurace");
         return;
     }
     char **stare_nazvy = malloc(staryPocetNastroju * sizeof(char *));
@@ -344,7 +354,8 @@ void novyNastroj()
     hlavniSoubor = fopen("nastroje.lad", "w");
     if (hlavniSoubor == NULL)
     {
-        printf("Zase nic");
+        printf("Chyba");
+        syslog(LOG_ERR, "Chyba v otevírání souboru pro zápis");
         return;
     }
     rewind(hlavniSoubor);
@@ -390,5 +401,6 @@ void posunTonu(void)
     printf("Uloženo");
     sleep(2);
     vycistitBuffer();
+    syslog(LOG_INFO, "Změnil se trim frekvence");
     return;
 }
