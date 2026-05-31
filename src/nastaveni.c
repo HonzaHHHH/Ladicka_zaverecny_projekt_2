@@ -327,11 +327,21 @@ void novyNastroj()
         fprintf(souborNaNovyNastroj, "%s;", noveNazvyTonu[__index_zapisovani_nazvu_do_souboru]);
     }
     fclose(souborNaNovyNastroj);
-    FILE *hlavniSoubor = fopen("nastroje.lad", "r+");
+    FILE *hlavniSoubor = fopen("nastroje.lad", "r");
     if (hlavniSoubor == NULL)
     {
         printf("Chyba");
         syslog(LOG_ERR, "Nepodařilo se otevřít soubor nastroje.lad pro čtení");
+        hlavniSoubor = fopen("nastroje.lad", "w");
+        if (hlavniSoubor == NULL)
+        {
+            printf("Chyba");
+            syslog(LOG_ERR, "Chyba ve vytváření souboru pro nástroje");
+            return;
+        }
+        rewind(hlavniSoubor);
+        fprintf(hlavniSoubor, "1;%s;", nazevSouboru);
+        fclose(hlavniSoubor);
         return;
     }
 
@@ -371,14 +381,14 @@ void novyNastroj()
     sleep(2);
 
     // úklid
-    
+
     for (int __index_cisteni = 0; __index_cisteni < novyPocetTonu; __index_cisteni++)
     {
         free(noveNazvyTonu[__index_cisteni]);
     }
     free(noveNazvyTonu);
     noveNazvyTonu = NULL;
-    
+
     for (int __cisteni_starych_nazvu = 0; __cisteni_starych_nazvu < staryPocetNastroju; __cisteni_starych_nazvu++)
     {
         free(stare_nazvy[__cisteni_starych_nazvu]);
@@ -402,7 +412,7 @@ void posunTonu(void)
     sleep(2);
     vycistitBuffer();
     syslog(LOG_INFO, "Změnil se trim frekvence");
-    FILE * ulozeni_trim = fopen("trim.lad", "w");
+    FILE *ulozeni_trim = fopen("trim.lad", "w");
     if (ulozeni_trim == NULL)
     {
         syslog(LOG_ERR, "Nepodařilo se uložit aktuální trim");

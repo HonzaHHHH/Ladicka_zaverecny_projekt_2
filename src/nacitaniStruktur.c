@@ -65,7 +65,7 @@ void nacistPosunFrekvence(void);
  */
 void nacistJmenaSouboru(void)
 {
-    FILE *souborSNazvy = fopen("nastroje.lad", "r"); // Stačí režim "r"
+    FILE *souborSNazvy = fopen("nastroje.lad", "r"); // Stačí režim r
     if (souborSNazvy == NULL) 
     {
         syslog(LOG_WARNING, "Neexistuje soubor s nástroji");
