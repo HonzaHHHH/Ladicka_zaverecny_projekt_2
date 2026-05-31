@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <syslog.h>
+#include <nastaveni.h>
+
 
 // tyto 2 makra mi pomohla gemini s vytvorenim a implementaci, protoze bych to sam asi nezvladl
 #define NA_STRING_HELPER(x) #x
@@ -48,6 +50,12 @@ void nacistNastrojeZeSouboru(void);
  * Spustí načítání struktur
  */
 void nacitaniStrukturMain(void);
+
+
+/**
+ * Načte trim frekvence
+ */
+void nacistPosunFrekvence(void);
 
 // --------------------------------------------------------------------
 
@@ -137,7 +145,26 @@ void nacistNastrojeZeSouboru(void)
 void nacitaniStrukturMain(void)
 {
     // ziskame odkud cerpat informace
-
+    nacistPosunFrekvence();
     nacistJmenaSouboru();
     nacistNastrojeZeSouboru();
+}
+
+void nacistPosunFrekvence(void)
+{
+    FILE * ladeni = fopen("trim.lad", "r+");
+    if (ladeni == NULL)
+    {
+        syslog(LOG_ERR, "Nepodařilo se otevřít soubor s trimem, přeskakuji ladení frekvence");
+        return;
+    }
+    rewind(ladeni);
+    short __kontrola_fscanf = fscanf(ladeni, "%i", &posun_frekvence);
+    if (__kontrola_fscanf != 1)
+    {
+        posun_frekvence = 0;
+        syslog(LOG_ERR, "Nenačetl se trim");
+        return;
+    }
+    fclose(ladeni);
 }

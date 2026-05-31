@@ -402,5 +402,14 @@ void posunTonu(void)
     sleep(2);
     vycistitBuffer();
     syslog(LOG_INFO, "Změnil se trim frekvence");
+    FILE * ulozeni_trim = fopen("trim.lad", "w");
+    if (ulozeni_trim == NULL)
+    {
+        syslog(LOG_ERR, "Nepodařilo se uložit aktuální trim");
+        return;
+    }
+    fprintf(ulozeni_trim, "%i", posun_frekvence);
+    fclose(ulozeni_trim);
+    syslog(LOG_INFO, "Trim frekvence se úspěšně zapsal");
     return;
 }
