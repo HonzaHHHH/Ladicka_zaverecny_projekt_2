@@ -23,7 +23,7 @@ void ladeniTonuMain();
 /**
  * Funkce bude ladit, není zde třeba žádny callback pro portaudio, protože jsem objevil funkci readStream, kterou bych mohl vyuižívat pro přehrávání tónu, ale nebyla by to taková zábava, proto ji používám pouze zde
  */
-void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence);
+void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence, int cisloTonu);
 
 PaStream **nastaveniPortAudioStreamuLadeni(struct hudebniNastroj);
 
@@ -86,7 +86,7 @@ void ladeniTonuMain()
             break;
         case '\n':
             clearScreen();
-            laditTon(poleStreamu[cisloVNabidce], poleHudebnichNastroju[aktualniHudebniNastroj].poleTonu[cisloVNabidce]);
+            laditTon(poleStreamu[cisloVNabidce], poleHudebnichNastroju[aktualniHudebniNastroj].poleTonu[cisloVNabidce], (int)cisloVNabidce);
             break;
         case 'q':
         case 'Q':
@@ -99,7 +99,7 @@ void ladeniTonuMain()
     Pa_Terminate();
 }
 
-void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
+void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence, int cisloTonu)
 {
     float fftbuffer[velikostFFTbufferu];
     Pa_StartStream(ukazatelNaStream);
@@ -143,6 +143,7 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
         }
         int frekvence = indexMaxima * vzorkovaciFrekvence / velikostFFTbufferu; // portaudio ukládá frekvence podle indexu, takze zde vezmu index, který vynásobím vzorkovací frekvenci a nakonec vydělím velikostí bufferu
         frekvence += posun_frekvence; // pro ladeni frekvence z mikrofonu
+        /*
         mvprintw(0, 0, "Frekvence je %i HZ                   ", frekvence);
         if ((cilovaFrekvence - frekvence) > 0)
         {
@@ -154,6 +155,11 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence)
         }
         else    mvprintw(1, 0, "Spravne naladeno                ");
         refresh();
+        */
+        mvprintw(0, 0, "Ladeni                      Ton o frekvenci: %i   Nazev tonu: %s                               Hudebni nastroj: %s", cilovaFrekvence, poleHudebnichNastroju[aktualniHudebniNastroj].nazvyTonu[cisloTonu], poleHudebnichNastroju[aktualniHudebniNastroj].nazev);
+        mvprintw(2, 49, "|");
+        mvprintw(3, 49, "V");
+
     }
     Pa_StopStream(ukazatelNaStream);
     endwin();
