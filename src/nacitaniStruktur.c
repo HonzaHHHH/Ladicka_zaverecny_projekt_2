@@ -69,6 +69,7 @@ void nacistJmenaSouboru(void)
     if (souborSNazvy == NULL) 
     {
         syslog(LOG_WARNING, "Neexistuje soubor s nástroji");
+        return;
         // řízení pro první spuštění
     }
     short kontrola_poctu = fscanf(souborSNazvy, "%i;", &pocetHudebnichNastroju);
