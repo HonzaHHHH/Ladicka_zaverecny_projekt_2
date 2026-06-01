@@ -57,6 +57,11 @@ void nacitaniStrukturMain(void);
  */
 void nacistPosunFrekvence(void);
 
+/**
+ * Uvolní všechny blbosti
+ */
+void uvolnitVsechnoNaKonec(void);
+
 // --------------------------------------------------------------------
 
 
@@ -178,4 +183,14 @@ void nacistPosunFrekvence(void)
         return;
     }
     fclose(ladeni);
+}
+
+void uvolnitVsechnoNaKonec(void)
+{
+    
+    for (int i = 0; i < pocetHudebnichNastroju; i++) {
+        free(nazvySouboru[i]);
+    }
+    free(nazvySouboru);
+    free(poleHudebnichNastroju);
 }

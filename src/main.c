@@ -151,6 +151,7 @@ void odejit(void)
         if (nastaveni & (1 << NASTAVENI_DIALOGPLUS))
             printf("(Ty hajzle!)\n");
         syslog(LOG_INFO, "Uživatel ukončil aplikaci normálně");
+        uvolnitVsechnoNaKonec(); 
         closelog();
         exit(EXIT_NORMALNI);
 

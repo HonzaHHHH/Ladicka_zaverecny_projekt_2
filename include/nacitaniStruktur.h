@@ -33,4 +33,5 @@ extern int aktualniHudebniNastroj;
 
 void nacitaniStrukturMain(void);
 
+void uvolnitVsechnoNaKonec(void);
 #endif
