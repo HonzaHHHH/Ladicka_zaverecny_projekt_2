@@ -161,6 +161,7 @@ void laditTon(PaStream *ukazatelNaStream, int cilovaFrekvence, int cisloTonu)
         mvprintw(3, 49, "V");
         mvprintw(1, 80, "Frekvence nyni: %i   ", frekvence);
         mvprintw(2, 80, "Cilova frekvence: %i  ", cilovaFrekvence);
+        mvprintw(3, 80, "Je treba preladit o: %i Hz    ", cilovaFrekvence - frekvence);
         double min_Frekvence = cilovaFrekvence * ((float) 1 / 8);
         double max_Frekvence = cilovaFrekvence * ((float) 15 / 8);
         int pozice = (int)(((double)frekvence - min_Frekvence) / (max_Frekvence - min_Frekvence) * 100) + 1;
