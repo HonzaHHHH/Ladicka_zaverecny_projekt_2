@@ -45,7 +45,7 @@ int main(int pocetArgumentu, char **argumenty)
     }
     if (nastaveni & ((1 << NASTAVENI_CHCEPOUZEHELP) | (1 << NASTAVENI_HELPASTART)))
     {
-        printf("Ladička\n\nUmožňuje ladění různých hudebních nástrojů v konzoli\n\nAutor: Jan Huml\n2026\n\n\nPoužití:\n\nladicka [PARAMETRY]\n\nSeznam parametrů:\n--help   Zobrazí nápovědu\n--has     Zobrazí nápovědu a poté spustí program\n --dipp    Dialogy++ - nechte se překvapit ;-)\n--ignsys    Ignoruje systém (použiití na vlastní riziko)\nProgram se ovládá klávesami WASD, Q pro krok zpátky a enterem\nPro pokračnování stiskněte jakoukkoliv klávesu\n\n");
+        printf("Ladička\n\nUmožňuje ladění různých hudebních nástrojů v konzoli\n\nAutor: Jan Huml\n2026\n\n\nPoužití:\n\nladicka [PARAMETRY]\n\nSeznam parametrů:\n--help   Zobrazí nápovědu\n--has     Zobrazí nápovědu a poté spustí program\n --dipp    Dialogy++ - nechte se překvapit ;-)\n--ignsys    Ignoruje systém (použiití na vlastní riziko)\n --smaz-config       Smaže aktuální konfiguraci\n\nProgram se ovládá klávesami WASD, Q pro krok zpátky a enterem\nPro pokračnování stiskněte jakoukkoliv klávesu\n\n");
         setupTerminalFunctions();
         getCharNow();
         if (nastaveni & (1 << NASTAVENI_CHCEPOUZEHELP))
@@ -149,7 +149,7 @@ void odejit(void)
         clearScreen();
         printf("Program ukončen\n");
         if (nastaveni & (1 << NASTAVENI_DIALOGPLUS))
-            printf("(Ty hajzle!)\n");
+            printf("(Ty zmetku!)\n");
         syslog(LOG_INFO, "Uživatel ukončil aplikaci normálně");
         uvolnitVsechnoNaKonec(); 
         closelog();
@@ -161,7 +161,8 @@ void odejit(void)
         clearScreen();
         return;
     default:
-        printf("Takovou klávesnici já neznám\n");
+        if (nastaveni & (1 << NASTAVENI_DIALOGPLUS)) printf("To neumíš zmáčknout klávesu? Radši ten komp zahoď\n");
+        else printf("Takovou klávesnici já neznám\n");
         sleep(2);
         return;
         break;

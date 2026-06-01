@@ -81,6 +81,11 @@ void praceSParametrem(char *parametry)
     {
         nastaveni |= (1 << NASTAVENI_HELPASTART);
     }
+    if (strcmp(parametry, "--smaz-config") == 0) // smaze konfiguraci
+    {
+        system("rm *.lad");
+        syslog(LOG_INFO, "Configurace smazána");
+    }
 }
 
 extern struct dataProStreamPrehravani *poleDatProStream;
